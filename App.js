@@ -11,6 +11,48 @@ import useLinking from './navigation/useLinking';
 
 const Stack = createStackNavigator();
 
+import { Environment } from './Environment';
+import Amplify from "aws-amplify";
+import { Auth } from "aws-amplify";
+Amplify.configure({
+  Auth: {
+    identityPoolId: Environment.identityPoolId,
+    region: Environment.region,
+    identityPoolRegion: Environment.region,
+    userPoolId: Environment.userPoolId,
+    userPoolWebClientId: Environment.userPoolWebClientId,
+    mandatorySignIn: false,
+    authenticationFlowType: "USER_PASSWORD_AUTH"
+  },
+  API: {
+    endpoints: [
+      {
+        name: "1",
+        endpoint: Environment.endpoint,
+        region: Environment.region,
+        custom_header: async () => ({
+          Authorization: (await Auth.currentSession()).idToken.jwtToken,
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+        })
+      },
+      {
+        name: "2",
+        endpoint: Environment.endpoint,
+        region: Environment.region
+      }
+    ]
+  },
+  Storage: {
+    AWSS3: {
+      bucket: Environment.bucket,
+      region: Environment.region
+    }
+  },
+  Analytics: {
+    disabled: true
+  }
+});
+
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
   const [initialNavigationState, setInitialNavigationState] = React.useState();
@@ -47,8 +89,8 @@ export default function App(props) {
     return null;
   } else {
     return (
-      <View style={{ flex: 1, backgroundColor: '#000000' }}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+      <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+        {Platform.OS === 'ios' && <StatusBar barStyle="light-content" />}
         <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="auth" component={AuthNavigator} options={{ animationEnabled: false }} />
