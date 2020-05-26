@@ -2,10 +2,8 @@ import * as React from 'react';
 import { Image, Text, View, TouchableOpacity, TouchableHighlight, TextInput, Platform, StyleSheet, ScrollView, Alert, Animated, Easing, Keyboard } from 'react-native';
 import { Auth } from "aws-amplify";
 
-export default class LoginScreen extends React.Component {
+export default class SignupScreen extends React.Component {
     state = {
-        username: 'thisischrisaitken@gmail.com',
-        password: 'place4pals',
         loading: false,
     };
     constructor(props) {
@@ -24,32 +22,40 @@ export default class LoginScreen extends React.Component {
                         <Image source={require('../assets/images/logo.png')} style={styles.logoImage} />
                         <Text style={[styles.textNoSelect, styles.logoText]}>place4pals</Text>
                     </TouchableOpacity>
-                    <TextInput onChangeText={value => this.setState({ username: value })} placeholder='Email' style={styles.loginInput}></TextInput>
+                    <TextInput onChangeText={value => this.setState({ email: value })} placeholder='Email' style={styles.loginInput}></TextInput>
+                    <TextInput onChangeText={value => this.setState({ username: value })} placeholder='Username' style={styles.loginInput}></TextInput>
                     <TextInput onChangeText={value => this.setState({ password: value })} placeholder='Password' secureTextEntry={true} style={styles.loginInput}></TextInput>
+                    <TextInput onChangeText={value => this.setState({ confirmPassword: value })} placeholder='Confirm Password' secureTextEntry={true} style={styles.loginInput}></TextInput>
                     <TouchableHighlight onPress={() => {
                         this.setState({ loading: true });
                         Keyboard.dismiss();
-                        Auth.signIn({
-                            username: this.state.username.toLowerCase(),
-                            password: this.state.password
-                        }).then(user => {
+                        if (!this.state.email || !this.state.username || !this.state.password || !this.state.confirmPassword) {
                             this.setState({ loading: false });
-                            console.log(user.signInUserSession.idToken.jwtToken);
-                            this.props.navigation.reset({ routes: [{ name: 'app' }] });
-                        }).catch(err => {
+                            Alert.alert('Error', `You're missing some information`, [{ text: 'OK' }], { cancelable: false });
+                        }
+                        else if (this.state.password !== this.state.confirmPassword) {
                             this.setState({ loading: false });
-                            let errorMessage;
-                            if (err.code === 'UserNotConfirmedException') { errorMessage = 'You must confirm your email address before logging in'; }
-                            else { errorMessage = 'Your username or password is incorrect' }
-                            if (Platform.OS === 'web') { window.alert(errorMessage); }
-                            else { Alert.alert('Error', errorMessage, [{ text: 'OK', onPress: () => console.log('OK Pressed') },], { cancelable: false }); }
-                        });
+                            Alert.alert('Error', 'Make sure your passwords match!', [{ text: 'OK' }], { cancelable: false });
+                        }
+                        else {
+                            Auth.signUp({ username: this.state.email, password: this.state.password, attributes: { 'custom:username': this.state.username } }).then(user => {
+                                console.log(user);
+                                this.setState({ loading: false });
+                                Alert.alert('Success', 'Confirm your email before logging in!', [{ text: 'OK' }], { cancelable: false });
+                                this.props.navigation.navigate('login');
+                            }).catch(err => {
+                                console.log(err);
+                                this.setState({ loading: false });
+                                let errorMessage = err.code;
+                                Alert.alert('Error', errorMessage, [{ text: 'OK' }], { cancelable: false });
+                            });
+                        }
                     }} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
-                        <Text style={[styles.textNoSelect, styles.loginText]}>Log In</Text>
+                        <Text style={[styles.textNoSelect, styles.loginText]}>Sign Up</Text>
                     </TouchableHighlight>
                     <View style={{ flexDirection: 'row', marginTop: 30 }}>
-                        <Text style={[styles.text]}>Not a pal? </Text>
-                        <Text onPress={() => { this.props.navigation.navigate('signup'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Join here</Text>
+                        <Text style={[styles.text]}>Already a pal? </Text>
+                        <Text onPress={() => { this.props.navigation.navigate('login'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Log in here</Text>
                         <Text style={[styles.text]}>.</Text>
                     </View>
                     <Text style={[styles.text, styles.footerText]}>© 2020 place4pals</Text>

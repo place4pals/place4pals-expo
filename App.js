@@ -25,22 +25,10 @@ Amplify.configure({
     authenticationFlowType: "USER_PASSWORD_AUTH"
   },
   API: {
-    endpoints: [
-      {
-        name: "1",
-        endpoint: Environment.endpoint,
-        region: Environment.region,
-        custom_header: async () => ({
-          Authorization: (await Auth.currentSession()).idToken.jwtToken,
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-        })
-      },
-      {
-        name: "2",
-        endpoint: Environment.endpoint,
-        region: Environment.region
-      }
-    ]
+    graphql_endpoint: Environment.endpoint,
+    graphql_headers: async () => ({
+      Authorization: "Bearer "+(await Auth.currentSession()).idToken.jwtToken
+    })
   },
   Storage: {
     AWSS3: {
@@ -90,7 +78,7 @@ export default function App(props) {
   } else {
     return (
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="light-content" />}
+        {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
         <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="auth" component={AuthNavigator} options={{ animationEnabled: false }} />
