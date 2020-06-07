@@ -9,6 +9,31 @@ export default class SignupScreen extends React.Component {
     constructor(props) {
         super(props);
     }
+    signup() {
+        this.setState({ loading: true });
+        Keyboard.dismiss();
+        if (!this.state.email || !this.state.username || !this.state.password || !this.state.confirmPassword) {
+            this.setState({ loading: false });
+            Alert.alert('Error', `You're missing some information`, [{ text: 'OK' }], { cancelable: false });
+        }
+        else if (this.state.password !== this.state.confirmPassword) {
+            this.setState({ loading: false });
+            Alert.alert('Error', 'Make sure your passwords match!', [{ text: 'OK' }], { cancelable: false });
+        }
+        else {
+            Auth.signUp({ username: this.state.email, password: this.state.password, attributes: { 'custom:username': this.state.username } }).then(user => {
+                console.log(user);
+                this.setState({ loading: false });
+                Alert.alert('Success', 'Confirm your email before logging in!', [{ text: 'OK' }], { cancelable: false });
+                this.props.navigation.navigate('login');
+            }).catch(err => {
+                console.log(err);
+                this.setState({ loading: false });
+                let errorMessage = err.code;
+                Alert.alert('Error', errorMessage, [{ text: 'OK' }], { cancelable: false });
+            });
+        }
+    }
     spinValue = new Animated.Value(0);
     render() {
         Animated.loop(Animated.timing(this.spinValue, { toValue: 1, duration: 420, easing: Easing.ease })).start(); //useNativeDriver: true
@@ -17,7 +42,7 @@ export default class SignupScreen extends React.Component {
         return (
             <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
                 <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' }}
-                    keyboardShouldPersistTaps="handled">
+                    keyboardShouldPersistTaps="handled" scrollEnabled={false}>
                     <TouchableOpacity activeOpacity={.5} onPress={() => { console.log('logo'); }} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
                         <Image source={require('../assets/images/logo.png')} style={styles.logoImage} />
                         <Text style={[styles.textNoSelect, styles.logoText]}>place4pals</Text>
@@ -25,32 +50,8 @@ export default class SignupScreen extends React.Component {
                     <TextInput onChangeText={value => this.setState({ email: value })} placeholder='Email' style={styles.loginInput}></TextInput>
                     <TextInput onChangeText={value => this.setState({ username: value })} placeholder='Username' style={styles.loginInput}></TextInput>
                     <TextInput onChangeText={value => this.setState({ password: value })} placeholder='Password' secureTextEntry={true} style={styles.loginInput}></TextInput>
-                    <TextInput onChangeText={value => this.setState({ confirmPassword: value })} placeholder='Confirm Password' secureTextEntry={true} style={styles.loginInput}></TextInput>
-                    <TouchableHighlight onPress={() => {
-                        this.setState({ loading: true });
-                        Keyboard.dismiss();
-                        if (!this.state.email || !this.state.username || !this.state.password || !this.state.confirmPassword) {
-                            this.setState({ loading: false });
-                            Alert.alert('Error', `You're missing some information`, [{ text: 'OK' }], { cancelable: false });
-                        }
-                        else if (this.state.password !== this.state.confirmPassword) {
-                            this.setState({ loading: false });
-                            Alert.alert('Error', 'Make sure your passwords match!', [{ text: 'OK' }], { cancelable: false });
-                        }
-                        else {
-                            Auth.signUp({ username: this.state.email, password: this.state.password, attributes: { 'custom:username': this.state.username } }).then(user => {
-                                console.log(user);
-                                this.setState({ loading: false });
-                                Alert.alert('Success', 'Confirm your email before logging in!', [{ text: 'OK' }], { cancelable: false });
-                                this.props.navigation.navigate('login');
-                            }).catch(err => {
-                                console.log(err);
-                                this.setState({ loading: false });
-                                let errorMessage = err.code;
-                                Alert.alert('Error', errorMessage, [{ text: 'OK' }], { cancelable: false });
-                            });
-                        }
-                    }} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
+                    <TextInput onChangeText={value => this.setState({ confirmPassword: value })} placeholder='Confirm Password' secureTextEntry={true} style={styles.loginInput} returnKeyType='send' onSubmitEditing={() => { this.signup() }}></TextInput>
+                    <TouchableHighlight onPress={() => { this.signup() }} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
                         <Text style={[styles.textNoSelect, styles.loginText]}>Sign Up</Text>
                     </TouchableHighlight>
                     <View style={{ flexDirection: 'row', marginTop: 30 }}>

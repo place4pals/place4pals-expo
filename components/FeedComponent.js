@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Image, Text, View, RefreshControl, TextInput, ScrollView, TouchableOpacity, Keyboard } from 'react-native';
+import { Modal, Image, Text, View, RefreshControl, TextInput, ScrollView, TouchableOpacity, Keyboard, Dimensions, TouchableOpacityBase, ActionSheetIOS, Platform } from 'react-native';
 import { API, graphqlOperation } from 'aws-amplify';
+import * as root from '../Root';
 
 export default class FeedComponent extends React.Component {
     constructor(props) {
@@ -9,7 +10,8 @@ export default class FeedComponent extends React.Component {
     state = {
         loading: false,
         posts: [],
-        commentInputs: []
+        commentInputs: [],
+        modalVisible: false
     };
     async componentDidMount() {
         this.onRefresh(false);
@@ -71,14 +73,33 @@ export default class FeedComponent extends React.Component {
         return (
             this.state.posts.map((obj, index) => {
                 return (
-                    <View key={index} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, width: '100%', marginBottom: 50, marginTop: 0 }}>
-                        <View style={{ marginTop: -35, display: 'flex', flexDirection: 'row', alignItems: 'flex-start', width: '100%' }}>
+                    <View key={index} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, marginBottom: 15, marginTop: 35 }}>
+                        <View style={{ marginTop: -35, display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('viewUser', { userId: obj.user.id }); }} activeOpacity={1}>
                                 <View style={{ borderWidth: 1, borderColor: '#000000', backgroundColor: colorize(obj.user.username), borderRadius: 10, padding: 5, height: 50, width: 50 }} />
                             </TouchableOpacity>
-                            <View style={{ marginTop: 5, marginLeft: 5, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
-                                <Text onPress={() => { this.props.navigation.navigate('viewPost', { postId: obj.id }); }} style={{ marginBottom: 5, fontSize: 22 }}>{obj.title}</Text>
-                                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', width: '82%' }}>
+                            <View style={{ marginTop: root.web ? -4 : 5, marginLeft: 5, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+                                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', paddingRight: 55 }}>
+                                    <Text onPress={() => { this.props.navigation.navigate('viewPost', { postId: obj.id }); }} style={{ marginBottom: 5, fontSize: 22 }}>{obj.title}</Text>
+                                    <TouchableOpacity style={{ paddingLeft: 30, height: 30 }} onPress={() => {
+                                        Platform.OS === 'ios' ?
+                                            ActionSheetIOS.showActionSheetWithOptions(
+                                                {
+                                                    options: ['Cancel', 'Delete', 'Share'],
+                                                    destructiveButtonIndex: 1,
+                                                    cancelButtonIndex: 0,
+                                                },
+                                                buttonIndex => {
+                                                    if (buttonIndex === 2) {
+                                                        //delete the post!!
+                                                    }
+                                                }
+                                            ) : alert("You should see options here to edit/delete a post- I'm working on it!")
+                                    }}>
+                                        <Text>...</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', paddingRight: 55 }}>
                                     <Text>by <Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: obj.user.id }); }} style={{ fontWeight: '600' }}>{obj.user.username}</Text></Text>
                                     <Text>{new Date(obj.date_created).toLocaleDateString(('en-US', {
                                         day: "numeric",

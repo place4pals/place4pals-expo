@@ -1,18 +1,42 @@
 import * as React from 'react';
-import { Image, Text, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { Image, Text, View, RefreshControl, TextInput, ScrollView, TouchableOpacity, Keyboard, Dimensions } from 'react-native';
+import { API, graphqlOperation } from 'aws-amplify';
+import HeaderComponent from '../components/HeaderComponent';
+import * as root from '../Root';
 
-export default class MessagesSCreen extends React.Component {
+export default class MessagesScreen extends React.Component {
   constructor(props) {
     super(props);
   }
+  state = {
+    loading: false,
+    posts: [],
+    commentInputs: []
+  };
+  async componentDidMount() {
+    this.onRefresh(false);
+  }
+  async onRefresh(showLoader = true) {
+  }
+
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-        <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', paddingTop: 50 }}>
-          <View style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', padding: 20, paddingTop: 0 }}>
-            <Image source={require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />
-            <Text style={{ color: '#000000', marginLeft: 10, fontSize: 40 }}>Messages</Text>
+        <HeaderComponent navigation={this.props.navigation} screen='messages' />
+        <ScrollView style={{ flex: 1, width: '100%' }}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.loading}
+              onRefresh={this.onRefresh.bind(this)}
+              colors={["#000000"]}
+              tintColor='#000000'
+              titleColor="#000000"
+              title=""
+            />
+          }>
+          <View style={[root.scrollViewContainer]}>
+            <View style={{ width: '100%', display: 'flex', flexDirection: 'column', paddingTop: 30 }}>
+            </View>
           </View>
         </ScrollView>
       </View>

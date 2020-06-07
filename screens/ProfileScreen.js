@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { Image, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import HeaderComponent from '../components/HeaderComponent';
+import * as root from '../Root';
+
 
 export default class ProfileScreen extends React.Component {
   constructor(props) {
@@ -9,11 +12,9 @@ export default class ProfileScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-        <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', paddingTop: 50 }}>
-          <View style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', padding: 20, paddingTop: 0 }}>
-            <Image source={require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />
-            <Text style={{ color: '#000000', marginLeft: 10, fontSize: 40 }}>Profile</Text>
-          </View>
+        <HeaderComponent navigation={this.props.navigation} screen='profile' />
+        <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', paddingTop: 0 }}>
+          <View style={[root.scrollViewContainer]}></View>
         </ScrollView>
       </View>
     );

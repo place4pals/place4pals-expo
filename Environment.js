@@ -1,5 +1,5 @@
 export const Environment = {
-    endpoint: 'https://api.place4pals.com/v1/graphql',
+    endpoint: 'https://api.p4p.io/v1/graphql',
     region: 'us-east-2',
     identityPoolId: 'us-east-2:09abd8af-b5fb-469b-9be6-eb605e0b9a2d',
     userPoolId: 'us-east-2_ta6cH0yKP',

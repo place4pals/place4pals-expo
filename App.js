@@ -4,6 +4,7 @@ import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import Constants from 'expo-constants';
 
 import AppNavigator from './navigation/AppNavigator';
 import AuthNavigator from './navigation/AuthNavigator';
@@ -21,13 +22,13 @@ Amplify.configure({
     identityPoolRegion: Environment.region,
     userPoolId: Environment.userPoolId,
     userPoolWebClientId: Environment.userPoolWebClientId,
-    mandatorySignIn: false,
+    mandatorySignIn: true,
     authenticationFlowType: "USER_PASSWORD_AUTH"
   },
   API: {
     graphql_endpoint: Environment.endpoint,
     graphql_headers: async () => ({
-      Authorization: "Bearer "+(await Auth.currentSession()).idToken.jwtToken
+      Authorization: "Bearer " + (await Auth.currentSession()).idToken.jwtToken
     })
   },
   Storage: {
@@ -46,30 +47,23 @@ export default function App(props) {
   const [initialNavigationState, setInitialNavigationState] = React.useState();
   const containerRef = React.useRef();
   const { getInitialState } = useLinking(containerRef);
-  let authenticated = false;
 
-  // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
         SplashScreen.preventAutoHide();
-
-        // Load our initial navigation state
         setInitialNavigationState(await getInitialState());
-
-        // Load fonts
+        //in case we want to use any custom fonts...
         await Font.loadAsync({
           'ubuntu': require('./assets/fonts/Ubuntu-Regular.ttf'),
         });
       } catch (e) {
-        // We might want to provide this error information to an error reporting service
         console.warn(e);
       } finally {
         setLoadingComplete(true);
         SplashScreen.hide();
       }
     }
-
     loadResourcesAndDataAsync();
   }, []);
 
@@ -78,7 +72,7 @@ export default function App(props) {
   } else {
     return (
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="dark-content" />}
+        {Platform.OS === 'ios' && <View style={{ backgroundColor: '#ffffff', height: Constants.statusBarHeight }}><StatusBar barStyle="dark-content" /></View>}
         <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="auth" component={AuthNavigator} options={{ animationEnabled: false }} />

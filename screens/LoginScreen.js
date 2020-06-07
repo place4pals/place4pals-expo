@@ -11,6 +11,25 @@ export default class LoginScreen extends React.Component {
     constructor(props) {
         super(props);
     }
+    login() {
+        this.setState({ loading: true });
+        Keyboard.dismiss();
+        Auth.signIn({
+            username: this.state.username.toLowerCase(),
+            password: this.state.password
+        }).then(user => {
+            this.setState({ loading: false });
+            console.log(user.signInUserSession.idToken.jwtToken);
+            this.props.navigation.reset({ routes: [{ name: 'app' }] });
+        }).catch(err => {
+            this.setState({ loading: false });
+            let errorMessage;
+            if (err.code === 'UserNotConfirmedException') { errorMessage = 'You must confirm your email address before logging in'; }
+            else { errorMessage = 'Your username or password is incorrect' }
+            if (Platform.OS === 'web') { window.alert(errorMessage); }
+            else { Alert.alert('Error', errorMessage, [{ text: 'OK', onPress: () => console.log('OK Pressed') },], { cancelable: false }); }
+        });
+    }
     spinValue = new Animated.Value(0);
     render() {
         Animated.loop(Animated.timing(this.spinValue, { toValue: 1, duration: 420, easing: Easing.ease })).start(); //useNativeDriver: true
@@ -19,32 +38,15 @@ export default class LoginScreen extends React.Component {
         return (
             <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
                 <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' }}
-                    keyboardShouldPersistTaps="handled">
+                    keyboardShouldPersistTaps="handled" scrollEnabled={false}>
                     <TouchableOpacity activeOpacity={.5} onPress={() => { console.log('logo'); }} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
                         <Image source={require('../assets/images/logo.png')} style={styles.logoImage} />
                         <Text style={[styles.textNoSelect, styles.logoText]}>place4pals</Text>
                     </TouchableOpacity>
                     <TextInput onChangeText={value => this.setState({ username: value })} placeholder='Email' style={styles.loginInput}></TextInput>
-                    <TextInput onChangeText={value => this.setState({ password: value })} placeholder='Password' secureTextEntry={true} style={styles.loginInput}></TextInput>
-                    <TouchableHighlight onPress={() => {
-                        this.setState({ loading: true });
-                        Keyboard.dismiss();
-                        Auth.signIn({
-                            username: this.state.username.toLowerCase(),
-                            password: this.state.password
-                        }).then(user => {
-                            this.setState({ loading: false });
-                            console.log(user.signInUserSession.idToken.jwtToken);
-                            this.props.navigation.reset({ routes: [{ name: 'app' }] });
-                        }).catch(err => {
-                            this.setState({ loading: false });
-                            let errorMessage;
-                            if (err.code === 'UserNotConfirmedException') { errorMessage = 'You must confirm your email address before logging in'; }
-                            else { errorMessage = 'Your username or password is incorrect' }
-                            if (Platform.OS === 'web') { window.alert(errorMessage); }
-                            else { Alert.alert('Error', errorMessage, [{ text: 'OK', onPress: () => console.log('OK Pressed') },], { cancelable: false }); }
-                        });
-                    }} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
+                    <TextInput onChangeText={value => this.setState({ password: value })} placeholder='Password' secureTextEntry={true} style={styles.loginInput} returnKeyType='send'
+                        onSubmitEditing={()=>{this.login()}}></TextInput>
+                    <TouchableHighlight onPress={()=>{this.login()}} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
                         <Text style={[styles.textNoSelect, styles.loginText]}>Log In</Text>
                     </TouchableHighlight>
                     <View style={{ flexDirection: 'row', marginTop: 30 }}>
@@ -54,7 +56,7 @@ export default class LoginScreen extends React.Component {
                     </View>
                     <Text style={[styles.text, styles.footerText]}>© 2020 place4pals</Text>
                     {this.state.loading &&
-                        <View style={{ position: 'absolute', width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25 }}>
+                        <View style={{ position: 'absolute', width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25, marginTop: -60 }}>
                             <Animated.View style={{ height: 50, width: 50, backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25, borderTopWidth: 25, transform: [{ rotate: spin }] }} />
                         </View>
                     }

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Image, Text, View, RefreshControl, TextInput, ScrollView, TouchableOpacity, Keyboard } from 'react-native';
 import FeedComponent from '../components/FeedComponent';
+import HeaderComponent from '../components/HeaderComponent';
+import * as root from '../Root';
 
 export default class ViewPostScreen extends React.Component {
     constructor(props) {
@@ -18,6 +20,7 @@ export default class ViewPostScreen extends React.Component {
     render() {
         return (
             <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+                <HeaderComponent navigation={this.props.navigation} screen='view post' />
                 <ScrollView style={{ flex: 1, width: '100%' }}
                     refreshControl={
                         <RefreshControl
@@ -26,16 +29,10 @@ export default class ViewPostScreen extends React.Component {
                             colors={["#000000"]}
                             tintColor='#000000'
                             titleColor="#000000"
-                            title="Pull to refresh"
+                            title="refresh"
                         />
                     }>
-                    <View style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', padding: 20, paddingTop: 50, marginBottom: 30, justifyContent: 'space-between' }}>
-                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
-                            <Image source={require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />
-                            <Text style={{ color: '#000000', marginLeft: 10, fontSize: 40 }}>View Post</Text>
-                        </View>
-                    </View>
-                    <View style={{ width: '100%', display: 'flex', flexDirection: 'column', padding: 20, paddingTop: 0 }}>
+                    <View style={{ paddingLeft: root.paddingHorizontal, paddingRight: root.paddingHorizontal, paddingTop: root.paddingTop }}>
                         <FeedComponent navigation={this.props.navigation} viewPost={this.props.route.params.postId} />
                     </View>
                 </ScrollView>
