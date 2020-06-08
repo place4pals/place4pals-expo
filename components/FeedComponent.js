@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Modal, Image, Text, View, RefreshControl, TextInput, ScrollView, TouchableOpacity, Keyboard, Dimensions, TouchableOpacityBase, ActionSheetIOS, Platform } from 'react-native';
-import { API, graphqlOperation } from 'aws-amplify';
+import { Text, View, RefreshControl, TextInput, TouchableOpacity, Keyboard, ActionSheetIOS, Platform, FlatList } from 'react-native';
+import { API, graphqlOperation, Auth } from 'aws-amplify';
 import * as root from '../Root';
 
 export default class FeedComponent extends React.Component {
@@ -11,10 +11,15 @@ export default class FeedComponent extends React.Component {
         loading: false,
         posts: [],
         commentInputs: [],
-        modalVisible: false
+        modalVisible: false,
+        limit: 10,
+        offset: 10,
+        endReached: false
     };
     async componentDidMount() {
         this.onRefresh(false);
+        let userId = (await Auth.currentSession()).idToken.payload.sub;
+        this.setState({ userId: userId });
     }
     async onRefresh(showLoader = true) {
         showLoader && this.setState({ loading: true });
@@ -22,7 +27,7 @@ export default class FeedComponent extends React.Component {
         this.props.viewPost && (modifyQuery = `, where: {id: {_eq: "${this.props.viewPost}"}}`);
         this.props.viewUser && (modifyQuery = `, where: {user_id: {_eq: "${this.props.viewUser}"}}`);
         let data = await API.graphql(graphqlOperation(`{
-            post(order_by: {date_created: desc}${modifyQuery}) {
+            post(order_by: {date_created: desc}, limit: ${this.state.limit}${modifyQuery}) {
                 id
                 title
                 content
@@ -40,7 +45,42 @@ export default class FeedComponent extends React.Component {
                 }
             }
         }`));
-        this.setState({ loading: false, posts: data.data.post });
+        this.setState({ loading: false, posts: data.data.post, endReached: false });
+    }
+
+    async loadMore() {
+        let data = await API.graphql(graphqlOperation(`{
+            post(order_by: {date_created: desc}, limit: ${this.state.limit}, offset: ${this.state.offset}) {
+                id
+                title
+                content
+                date_created
+                user {
+                id
+                username
+                }
+                comments(order_by: {date_created: asc}) {
+                content
+                date_created
+                user {
+                    username
+                }
+                }
+            }
+        }`));
+        this.setState({ posts: this.state.posts.concat(data.data.post), offset: this.state.offset + this.state.limit, endReached: data.data.post.length === 0 ? true : false });
+    }
+
+    async deletePost(id) {
+        await API.graphql(graphqlOperation(`
+            mutation {
+                delete_post(where: {id: {_eq: "${id}"}}) {
+                  affected_rows
+                }
+              }
+        `));
+        //this.setState({ posts: this.state.posts.splice(givenIndex - 1, 1) });
+        this.onRefresh(false);
     }
 
     async addComment(content, id) {
@@ -49,16 +89,16 @@ export default class FeedComponent extends React.Component {
         let data = await API.graphql(graphqlOperation(`mutation { insert_comment(objects: {content: "${content}", post_id: "${id}"}) {affected_rows}}`));
         //now reload that specific post's comments
         data = await API.graphql(graphqlOperation(`{
-      post(order_by: {date_created: desc}, where: {id: {_eq: "${id}"}}) {
-        comments(order_by: {date_created: asc}) {
-          content
-          date_created
-          user {
-            username
-          }
-        }
-      }
-    }`));
+            post(order_by: {date_created: desc}, where: {id: {_eq: "${id}"}}) {
+                comments(order_by: {date_created: asc}) {
+                content
+                date_created
+                user {
+                    username
+                }
+                }
+            }
+        }`));
         this.state.posts[this.state.posts.findIndex(obj => obj.id == id)].comments = data.data.post[0].comments;
         this.setState({ loading: false });
     }
@@ -71,60 +111,88 @@ export default class FeedComponent extends React.Component {
         }
 
         return (
-            this.state.posts.map((obj, index) => {
-                return (
-                    <View key={index} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, marginBottom: 15, marginTop: 35 }}>
-                        <View style={{ marginTop: -35, display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
-                            <TouchableOpacity onPress={() => { this.props.navigation.navigate('viewUser', { userId: obj.user.id }); }} activeOpacity={1}>
-                                <View style={{ borderWidth: 1, borderColor: '#000000', backgroundColor: colorize(obj.user.username), borderRadius: 10, padding: 5, height: 50, width: 50 }} />
-                            </TouchableOpacity>
-                            <View style={{ marginTop: root.web ? -4 : 5, marginLeft: 5, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
-                                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', paddingRight: 55 }}>
-                                    <Text onPress={() => { this.props.navigation.navigate('viewPost', { postId: obj.id }); }} style={{ marginBottom: 5, fontSize: 22 }}>{obj.title}</Text>
-                                    <TouchableOpacity style={{ paddingLeft: 30, height: 30 }} onPress={() => {
-                                        Platform.OS === 'ios' ?
-                                            ActionSheetIOS.showActionSheetWithOptions(
-                                                {
-                                                    options: ['Cancel', 'Delete', 'Share'],
-                                                    destructiveButtonIndex: 1,
-                                                    cancelButtonIndex: 0,
-                                                },
-                                                buttonIndex => {
-                                                    if (buttonIndex === 2) {
-                                                        //delete the post!!
-                                                    }
+            <FlatList
+                data={this.state.posts}
+                renderItem={({ item, index }) => (
+                    <View style={{ paddingLeft: root.paddingHorizontal, paddingRight: root.paddingHorizontal, paddingTop: root.paddingTop }}>
+                        <View style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, marginBottom: 15, marginTop: 35 }}>
+                            <View style={{ marginTop: -35, display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
+                                <TouchableOpacity onPress={() => { this.props.navigation.navigate('viewUser', { userId: item.user.id }); }} activeOpacity={1}>
+                                    <View style={{ borderWidth: 1, borderColor: '#000000', backgroundColor: colorize(item.user.username), borderRadius: 10, padding: 5, height: 50, width: 50 }} />
+                                </TouchableOpacity>
+                                <View style={{ marginTop: root.web ? -4 : 5, marginLeft: 5, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+                                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', paddingRight: 55 }}>
+                                        <Text onPress={() => { this.props.navigation.navigate('viewPost', { postId: item.id }); }} style={{ marginBottom: 5, fontSize: 22 }}>{item.title}</Text>
+                                        {this.state.postOptions === item.id ?
+                                            <View style={{ display: 'flex', flexDirection: 'row' }}>
+                                                {this.state.userId === item.user.id &&
+                                                    <Text style={{ marginLeft: 10, color: '#ff0000' }} onPress={() => { this.deletePost(item.id) }}>Delete</Text>
                                                 }
-                                            ) : alert("You should see options here to edit/delete a post- I'm working on it!")
-                                    }}>
-                                        <Text>...</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', paddingRight: 55 }}>
-                                    <Text>by <Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: obj.user.id }); }} style={{ fontWeight: '600' }}>{obj.user.username}</Text></Text>
-                                    <Text>{new Date(obj.date_created).toLocaleDateString(('en-US', {
-                                        day: "numeric",
-                                        month: "numeric",
-                                        year: "numeric"
-                                    }))} @ {new Date(obj.date_created).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</Text>
+                                                <Text style={{ marginLeft: 10, color: '#000000' }} onPress={() => { console.log("share post!") }}>Share</Text>
+                                                <Text style={{ marginLeft: 10, color: '#000000' }} onPress={() => { console.log("save post!") }}>Save</Text>
+                                                <Text style={{ marginLeft: 15, marginRight: 5, color: '#000000' }} onPress={() => { this.setState({ postOptions: null }); }}>🗙</Text>
+                                            </View> :
+                                            <TouchableOpacity style={{ paddingLeft: 30, height: 30 }} onPress={() => {
+                                                Platform.OS === 'ios' ?
+                                                    ActionSheetIOS.showActionSheetWithOptions(
+                                                        {
+                                                            options: this.state.userId === item.user.id ? ['Cancel', 'Delete', 'Share', 'Save'] : ['Cancel', 'Share', 'Save'],
+                                                            destructiveButtonIndex: this.state.userId === item.user.id ? 1 : null,
+                                                            cancelButtonIndex: 0,
+                                                        },
+                                                        buttonIndex => {
+                                                            if (this.state.userId === item.user.id) {
+                                                                if (buttonIndex === 2) {
+                                                                    this.deletePost(item.id)
+                                                                }
+                                                            }
+                                                            else {
+                                                                //normal non-destructive actions
+                                                            }
+                                                        }
+                                                    ) : this.setState({ postOptions: item.id });
+                                            }}>
+                                                <Text>. . . </Text>
+                                            </TouchableOpacity>}
+                                    </View>
+                                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', paddingRight: 55 }}>
+                                        <Text>by <Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: item.user.id }); }} style={{ fontWeight: '600' }}>{item.user.username}</Text></Text>
+                                        <Text>{new Date(item.date_created).toLocaleDateString(('en-US', {
+                                            day: "numeric",
+                                            month: "numeric",
+                                            year: "numeric"
+                                        }))} @ {new Date(item.date_created).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</Text>
+                                    </View>
                                 </View>
                             </View>
+                            <Text style={{ margin: 10 }}>{item.content}</Text>
+                            {item.comments.map((innerItem, innerIndex) => {
+                                return (
+                                    <View key={innerIndex} style={{ marginLeft: 10, marginRight: 10, marginBottom: 5 }}>
+                                        <Text><Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: item.user.id }); }} style={{ fontWeight: '600' }}>{innerItem.user.username}</Text>: {innerItem.content}</Text>
+                                    </View>
+                                )
+                            })}
+                            <TextInput inputAccessoryViewID='main' style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, margin: 10 }} placeholder='Add a comment' returnKeyType='send' type='text'
+                                onSubmitEditing={(event) => { this.addComment(event.nativeEvent.text, item.id); this.setState({ commentInputs: { ...this.state.commentInputs, [item.id]: '' } }); }}
+                                onChangeText={comment => { this.setState({ commentInputs: { ...this.state.commentInputs, [item.id]: comment } }); }}
+                                //multiline={true}
+                                value={this.state.commentInputs[item.id] || ''} />
                         </View>
-                        <Text style={{ margin: 10 }}>{obj.content}</Text>
-                        {obj.comments.map((innerObj, innerIndex) => {
-                            return (
-                                <View key={innerIndex} style={{ marginLeft: 10, marginRight: 10, marginBottom: 5 }}>
-                                    <Text><Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: obj.user.id }); }} style={{ fontWeight: '600' }}>{innerObj.user.username}</Text>: {innerObj.content}</Text>
-                                </View>
-                            )
-                        })}
-                        <TextInput style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, margin: 10 }} placeholder='Add a comment' returnKeyType='send'
-                            onSubmitEditing={(event) => { this.addComment(event.nativeEvent.text, obj.id); this.setState({ commentInputs: { ...this.state.commentInputs, [obj.id]: '' } }); }}
-                            onChangeText={comment => { this.setState({ commentInputs: { ...this.state.commentInputs, [obj.id]: comment } }); }}
-                            //multiline={true}
-                            value={this.state.commentInputs[obj.id]} />
                     </View>
-                )
-            })
+                )}
+                keyExtractor={item => item.id}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.loading}
+                        onRefresh={this.onRefresh.bind(this)}
+                        colors={["#000000"]}
+                        tintColor='#000000'
+                        titleColor="#000000"
+                        title=""
+                    />}
+                onEndReached={() => { if (!this.props.viewPost && !this.props.viewUser && !this.state.endReached) { this.loadMore() } }}
+            />
         );
     }
 }

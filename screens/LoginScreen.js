@@ -1,15 +1,21 @@
 import * as React from 'react';
-import { Image, Text, View, TouchableOpacity, TouchableHighlight, TextInput, Platform, StyleSheet, ScrollView, Alert, Animated, Easing, Keyboard } from 'react-native';
+import { Image, Text, View, TouchableOpacity, TouchableHighlight, TextInput, Platform, StyleSheet, ScrollView, Animated, Easing, Keyboard } from 'react-native';
 import { Auth } from "aws-amplify";
+import InputAccessoryViewComponent from '../components/InputAccessoryViewComponent';
 
 export default class LoginScreen extends React.Component {
     state = {
-        username: 'thisischrisaitken@gmail.com',
+        username: 'chris@heythisischris.com',
         password: 'place4pals',
         loading: false,
     };
     constructor(props) {
         super(props);
+        if (this.props.route.params) {
+            if (this.props.route.params.successMessage) {
+                this.setState({ successMessage: this.props.route.params.successMessage });
+            }
+        }
     }
     login() {
         this.setState({ loading: true });
@@ -22,12 +28,8 @@ export default class LoginScreen extends React.Component {
             console.log(user.signInUserSession.idToken.jwtToken);
             this.props.navigation.reset({ routes: [{ name: 'app' }] });
         }).catch(err => {
-            this.setState({ loading: false });
-            let errorMessage;
-            if (err.code === 'UserNotConfirmedException') { errorMessage = 'You must confirm your email address before logging in'; }
-            else { errorMessage = 'Your username or password is incorrect' }
-            if (Platform.OS === 'web') { window.alert(errorMessage); }
-            else { Alert.alert('Error', errorMessage, [{ text: 'OK', onPress: () => console.log('OK Pressed') },], { cancelable: false }); }
+            console.log(err);
+            this.setState({ loading: false, errorMessage: err.code === 'UserNotConfirmedException' ? 'Confirm your email address before logging in' : 'Your username or password is incorrect' });
         });
     }
     spinValue = new Animated.Value(0);
@@ -37,21 +39,29 @@ export default class LoginScreen extends React.Component {
 
         return (
             <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+                <InputAccessoryViewComponent />
                 <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' }}
                     keyboardShouldPersistTaps="handled" scrollEnabled={false}>
-                    <TouchableOpacity activeOpacity={.5} onPress={() => { console.log('logo'); }} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+                    <TouchableOpacity activeOpacity={.5} onPress={() => { this.props.navigation.navigate('login'); }} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
                         <Image source={require('../assets/images/logo.png')} style={styles.logoImage} />
                         <Text style={[styles.textNoSelect, styles.logoText]}>place4pals</Text>
                     </TouchableOpacity>
-                    <TextInput onChangeText={value => this.setState({ username: value })} placeholder='Email' style={styles.loginInput}></TextInput>
-                    <TextInput onChangeText={value => this.setState({ password: value })} placeholder='Password' secureTextEntry={true} style={styles.loginInput} returnKeyType='send'
-                        onSubmitEditing={()=>{this.login()}}></TextInput>
-                    <TouchableHighlight onPress={()=>{this.login()}} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
+                    {this.state.errorMessage && <Text style={[styles.text, { color: '#ff0000' }]}>{this.state.errorMessage}</Text>}
+                    {this.state.successMessage && <Text style={[styles.text, { color: '#006600' }]}>{this.state.successMessage}</Text>}
+                    <TextInput inputAccessoryViewID='main' onChangeText={value => this.setState({ username: value })} placeholder='Email' style={styles.loginInput}></TextInput>
+                    <TextInput inputAccessoryViewID='main' onChangeText={value => this.setState({ password: value })} placeholder='Password' secureTextEntry={true} style={styles.loginInput} returnKeyType='send'
+                        onSubmitEditing={() => { this.login() }}></TextInput>
+                    <TouchableHighlight onPress={() => { this.login() }} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
                         <Text style={[styles.textNoSelect, styles.loginText]}>Log In</Text>
                     </TouchableHighlight>
                     <View style={{ flexDirection: 'row', marginTop: 30 }}>
                         <Text style={[styles.text]}>Not a pal? </Text>
                         <Text onPress={() => { this.props.navigation.navigate('signup'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Join here</Text>
+                        <Text style={[styles.text]}>.</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                        <Text style={[styles.text]}>Forgot password? </Text>
+                        <Text onPress={() => { this.props.navigation.navigate('reset'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Reset here</Text>
                         <Text style={[styles.text]}>.</Text>
                     </View>
                     <Text style={[styles.text, styles.footerText]}>© 2020 place4pals</Text>

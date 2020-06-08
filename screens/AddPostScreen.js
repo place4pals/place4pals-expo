@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, Text, View, TextInput, ScrollView, TouchableOpacity, Keyboard } from 'react-native';
+import {  Text, View, TextInput, ScrollView, TouchableOpacity, Keyboard } from 'react-native';
 import { API, graphqlOperation } from 'aws-amplify';
 import HeaderComponent from '../components/HeaderComponent';
 import * as root from '../Root';
@@ -28,9 +28,10 @@ export default class AddPostScreen extends React.Component {
                 <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', paddingTop: 0 }} keyboardDismissMode="interactive" keyboardShouldPersistTaps="always">
                     <View style={{ width: '100%', display: 'flex', flexDirection: 'column', padding: 20, paddingTop: 0, paddingLeft: root.paddingHorizontal, paddingRight: root.paddingHorizontal }}>
                         <Text style={{ margin: 5 }}>Title:</Text>
-                        <TextInput style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, fontSize: 20, marginBottom: 10 }} onChangeText={val => this.setState({ title: val })} />
+                        <TextInput inputAccessoryViewID='main' style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, fontSize: 20, marginBottom: 10 }} onChangeText={val => this.setState({ title: val })} />
                         <Text style={{ margin: 5 }}>Content:</Text>
                         <TextInput
+                            inputAccessoryViewID='main'
                             multiline={true}
                             style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, fontSize: 20, minHeight: 150 }}
                             onChangeText={val => this.setState({ content: val })}

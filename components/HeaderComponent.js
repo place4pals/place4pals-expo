@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Image, Text, View, TouchableOpacity, Dimensions } from 'react-native';
+import { Image, Text, View, TouchableOpacity } from 'react-native';
 import * as root from '../Root';
+import InputAccessoryViewComponent from './InputAccessoryViewComponent';
 
 export default class HeaderComponent extends React.Component {
     render() {
@@ -13,16 +14,16 @@ export default class HeaderComponent extends React.Component {
                                 <Image source={require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('feed'); }} >
-                                <Text style={{ color: '#000000', marginLeft: 10, fontSize: 30, fontWeight: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? 600 : 400, color: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? '#000000' : '#aaaaaa' }}>Feed</Text>
+                                <Text style={{ color: '#000000', marginLeft: 10, fontSize: 30, fontWeight: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? '600' : '400', color: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? '#000000' : '#aaaaaa' }}>Feed</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('messages'); }} >
-                                <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'messages' ? 600 : 400, color: this.props.screen === 'messages' ? '#000000' : '#aaaaaa' }}>Messages</Text>
+                                <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'messages' ? '600' : '400', color: this.props.screen === 'messages' ? '#000000' : '#aaaaaa' }}>Messages</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('profile'); }} >
-                                <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'profile' ? 600 : 400, color: this.props.screen === 'profile' ? '#000000' : '#aaaaaa' }}>Profile</Text>
+                                <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'profile' ? '600' : '400', color: this.props.screen === 'profile' ? '#000000' : '#aaaaaa' }}>Profile</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('settings'); }} >
-                                <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'settings' ? 600 : 400, color: this.props.screen === 'settings' ? '#000000' : '#aaaaaa' }}>Settings</Text>
+                                <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'settings' ? '600' : '400', color: this.props.screen === 'settings' ? '#000000' : '#aaaaaa' }}>Settings</Text>
                             </TouchableOpacity>
                         </View>
                         {this.props.screen === 'feed' &&
@@ -44,6 +45,7 @@ export default class HeaderComponent extends React.Component {
                                 <Text style={{ fontSize: 20, }}>+ Add Post </Text>
                             </TouchableOpacity>
                         }
+                        <InputAccessoryViewComponent />
                     </View>
                 }
             </View>

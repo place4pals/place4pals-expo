@@ -3,32 +3,31 @@ import { Image, Text, View, TouchableOpacity, TouchableHighlight, TextInput, Pla
 import { Auth } from "aws-amplify";
 import InputAccessoryViewComponent from '../components/InputAccessoryViewComponent';
 
-export default class SignupScreen extends React.Component {
+export default class ResetScreen extends React.Component {
     state = {
+        email: '',
         loading: false,
     };
     constructor(props) {
         super(props);
+        if (this.props.route.params) {
+            if (this.props.route.params.successMessage) {
+                this.setState({ successMessage: this.props.route.params.successMessage });
+            }
+        }
     }
-    signup() {
+    reset() {
         this.setState({ loading: true });
         Keyboard.dismiss();
-        if (!this.state.email || !this.state.username || !this.state.password || !this.state.confirmPassword) {
-            this.setState({ loading: false, errorMessage: "You're missing some information" });
-        }
-        else if (this.state.password !== this.state.confirmPassword) {
-            this.setState({ loading: false, errorMessage: 'Make sure your passwords match!' });
-        }
-        else {
-            Auth.signUp({ username: this.state.email, password: this.state.password, attributes: { 'custom:username': this.state.username } }).then(user => {
-                console.log(user);
-                this.setState({ loading: false });
-                this.props.navigation.navigate('login', { successMessage: 'Success! Confirm your email before logging in' });
-            }).catch(err => {
+        Auth.forgotPassword(this.state.email)
+            .then(data => {
+                console.log(data);
+                this.setState({ loading: false, successMessage: 'We sent you a link to reset your password' });
+            })
+            .catch(err => {
                 console.log(err);
-                this.setState({ loading: false, errorMessage: err.code });
+                this.setState({ loading: false, errorMessage: 'There is no account associated with that email address' });
             });
-        }
     }
     spinValue = new Animated.Value(0);
     render() {
@@ -45,27 +44,24 @@ export default class SignupScreen extends React.Component {
                         <Text style={[styles.textNoSelect, styles.logoText]}>place4pals</Text>
                     </TouchableOpacity>
                     {this.state.errorMessage && <Text style={[styles.text, { color: '#ff0000' }]}>{this.state.errorMessage}</Text>}
-                    {this.state.successMessage && <Text style={[styles.text, { color: '#ff0000' }]}>{this.state.successMessage}</Text>}
-                    <TextInput inputAccessoryViewID='main' onChangeText={value => this.setState({ email: value })} placeholder='Email' style={styles.loginInput}></TextInput>
-                    <TextInput inputAccessoryViewID='main' onChangeText={value => this.setState({ username: value })} placeholder='Username' style={styles.loginInput}></TextInput>
-                    <TextInput inputAccessoryViewID='main' onChangeText={value => this.setState({ password: value })} placeholder='Password' secureTextEntry={true} style={styles.loginInput}></TextInput>
-                    <TextInput inputAccessoryViewID='main' onChangeText={value => this.setState({ confirmPassword: value })} placeholder='Confirm Password' secureTextEntry={true} style={styles.loginInput} returnKeyType='send' onSubmitEditing={() => { this.signup() }}></TextInput>
-                    <TouchableHighlight onPress={() => { this.signup() }} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
-                        <Text style={[styles.textNoSelect, styles.loginText]}>Sign Up</Text>
+                    {this.state.successMessage && <Text style={[styles.text, { color: '#006600' }]}>{this.state.successMessage}</Text>}
+                    <TextInput inputAccessoryViewID='main' onChangeText={value => this.setState({ email: value })} placeholder='Email' style={styles.loginInput} returnKeyType='send' onSubmitEditing={() => { this.reset() }}></TextInput>
+                    <TouchableHighlight onPress={() => { this.reset() }} style={styles.loginButton} underlayColor={'#eeeeee'} activeOpacity={1}>
+                        <Text style={[styles.textNoSelect, styles.loginText]}>Reset Password</Text>
                     </TouchableHighlight>
                     <View style={{ flexDirection: 'row', marginTop: 30 }}>
-                        <Text style={[styles.text]}>Already a pal? </Text>
-                        <Text onPress={() => { this.props.navigation.navigate('login'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Log in here</Text>
+                        <Text style={[styles.text]}>Remember your password? </Text>
+                        <Text onPress={() => { this.props.navigation.navigate('login'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Login here</Text>
                         <Text style={[styles.text]}>.</Text>
                     </View>
                     <View style={{ flexDirection: 'row', marginTop: 5 }}>
-                        <Text style={[styles.text]}>Forgot password? </Text>
-                        <Text onPress={() => { this.props.navigation.navigate('reset'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Reset here</Text>
+                        <Text style={[styles.text]}>Not a pal? </Text>
+                        <Text onPress={() => { this.props.navigation.navigate('signup'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Join here</Text>
                         <Text style={[styles.text]}>.</Text>
                     </View>
                     <Text style={[styles.text, styles.footerText]}>© 2020 place4pals</Text>
                     {this.state.loading &&
-                        <View style={{ position: 'absolute', width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25 }}>
+                        <View style={{ position: 'absolute', width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25, marginTop: -60 }}>
                             <Animated.View style={{ height: 50, width: 50, backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25, borderTopWidth: 25, transform: [{ rotate: spin }] }} />
                         </View>
                     }
