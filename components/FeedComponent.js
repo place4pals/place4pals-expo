@@ -1,7 +1,9 @@
 import * as React from 'react';
-import { Text, View, RefreshControl, TextInput, TouchableOpacity, Keyboard, ActionSheetIOS, Platform, FlatList } from 'react-native';
+import { Text, View, RefreshControl, TextInput, TouchableOpacity, Keyboard, ActionSheetIOS, Platform, FlatList, Dimensions, Linking } from 'react-native';
 import { API, graphqlOperation, Auth } from 'aws-amplify';
 import * as root from '../Root';
+import HTML from 'react-native-render-html';
+import InputAccessoryViewComponent from './InputAccessoryViewComponent';
 
 export default class FeedComponent extends React.Component {
     constructor(props) {
@@ -40,12 +42,13 @@ export default class FeedComponent extends React.Component {
                 content
                 date_created
                 user {
+                    id
                     username
                 }
                 }
             }
         }`));
-        this.setState({ loading: false, posts: data.data.post, endReached: false });
+        this.setState({ loading: false, posts: data.data.post, endReached: false, offset: this.state.limit });
     }
 
     async loadMore() {
@@ -165,11 +168,19 @@ export default class FeedComponent extends React.Component {
                                     </View>
                                 </View>
                             </View>
-                            <Text style={{ margin: 10 }}>{item.content}</Text>
+                            <View style={{ padding: 10 }}>
+                                <HTML
+                                    html={item.content}
+                                    imagesMaxWidth={Dimensions.get('window').width - root.paddingHorizontal * 2}
+                                    onLinkPress={(event, href) => { Linking.openURL(href) }}
+                                    allowedStyles={['a', 'b', 'i', 'h1', 'h2', 'h3', 'ol', 'ul', 'li', 'p', 'br', 'hr', 'img']}
+                                    tagsStyles={{ a: { fontSize: 14 }, b: { fontWeight: '600', fontSize: 14 }, i: { fontStyle: 'italic', fontSize: 14 }, h1: { fontWeight: '600', fontSize: 20 }, h2: { fontWeight: '600', fontSize: 19 }, h3: { fontWeight: '600', fontSize: 16 }, ol: { fontSize: 14 }, ul: { fontSize: 14 }, li: { fontSize: 14 }, p: { fontSize: 14 }, br: { fontSize: 14 }, hr: { fontSize: 14 }, img: { marginLeft: root.web ? 0 : -16, marginRight: root.web ? 0 : -16 } }}
+                                />
+                            </View>
                             {item.comments.map((innerItem, innerIndex) => {
                                 return (
                                     <View key={innerIndex} style={{ marginLeft: 10, marginRight: 10, marginBottom: 5 }}>
-                                        <Text><Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: item.user.id }); }} style={{ fontWeight: '600' }}>{innerItem.user.username}</Text>: {innerItem.content}</Text>
+                                        <Text><Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: innerItem.user.id }); }} style={{ fontWeight: '600' }}>{innerItem.user.username}</Text>: {innerItem.content}</Text>
                                     </View>
                                 )
                             })}
