@@ -64,7 +64,7 @@ export default class LoginScreen extends React.Component {
                         <Text onPress={() => { this.props.navigation.navigate('reset'); }} style={[styles.text, { color: '#180DEB', textDecorationLine: 'underline' }]}>Reset here</Text>
                         <Text style={[styles.text]}>.</Text>
                     </View>
-                    <Text style={[styles.text, styles.footerText]}>© 2020 place4pals</Text>
+                    <Text style={[styles.text, styles.footerText]}>© {new Date().getFullYear()} place4pals</Text>
                     {this.state.loading &&
                         <View style={{ position: 'absolute', width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25, marginTop: -60 }}>
                             <Animated.View style={{ height: 50, width: 50, backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25, borderTopWidth: 25, transform: [{ rotate: spin }] }} />

@@ -1,15 +1,18 @@
 import * as React from 'react';
-import { Image, Text, View, TouchableOpacity } from 'react-native';
+import { Image, Text, View, TouchableOpacity, TextInput } from 'react-native';
 import * as root from '../Root';
 import InputAccessoryViewComponent from './InputAccessoryViewComponent';
 
 export default class HeaderComponent extends React.Component {
+    state = {
+        search: ''
+    };
     render() {
         return (
             <View>
-                {root.web ?
-                    <View style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', marginBottom: 20, justifyContent: 'space-between', paddingLeft: root.paddingHorizontal, paddingRight: root.paddingHorizontal, paddingTop: root.paddingTop }}>
-                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end', width: '70%' }}>
+                {root.desktopWeb ?
+                    <View style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', marginBottom: 20, justifyContent: 'space-between', width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingTop: root.paddingTop }}>
+                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end', width: 'auto' }}>
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('feed'); }} >
                                 <Image source={require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />
                             </TouchableOpacity>
@@ -25,6 +28,10 @@ export default class HeaderComponent extends React.Component {
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('settings'); }} >
                                 <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'settings' ? '600' : '400', color: this.props.screen === 'settings' ? '#000000' : '#aaaaaa' }}>Settings</Text>
                             </TouchableOpacity>
+                            <TextInput inputAccessoryViewID='main' style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, fontSize: 20, marginLeft: 65, paddingLeft: 10, paddingRight: 10 }} placeholder='Search' returnKeyType='send' type='text'
+                                onSubmitEditing={(event) => { }}
+                                onChangeText={value => { this.setState({ search: value }); }}
+                                value={this.state.search} />
                         </View>
                         {this.props.screen === 'feed' &&
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('addPost'); }} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, marginRight: 15 }}>
@@ -33,7 +40,7 @@ export default class HeaderComponent extends React.Component {
                         }
                     </View>
                     :
-                    <View style={{ width: '100%', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', marginBottom: 20, justifyContent: 'space-between', paddingLeft: root.paddingHorizontal, paddingRight: root.paddingHorizontal, paddingTop: root.paddingTop }}>
+                    <View style={{ width: root.width, display: 'flex', flexDirection: 'row', alignItems: 'flex-end', marginBottom: 20, justifyContent: 'space-between', marginLeft: root.marginLeft, marginRight: root.marginRight, paddingTop: root.paddingTop }}>
                         <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
                             <TouchableOpacity onPress={() => { this.props.navigation.navigate('feed'); }} >
                                 <Image source={require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />

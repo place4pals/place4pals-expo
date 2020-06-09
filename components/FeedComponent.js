@@ -20,8 +20,9 @@ export default class FeedComponent extends React.Component {
     };
     async componentDidMount() {
         this.onRefresh(false);
-        let userId = (await Auth.currentSession()).idToken.payload.sub;
-        this.setState({ userId: userId });
+        let currentUser = (await Auth.currentSession()).idToken.payload;
+        this.setState({ userId: currentUser.sub, username: currentUser['custom:username'] });
+        root.desktopWeb && this.loadStats();
     }
     async onRefresh(showLoader = true) {
         showLoader && this.setState({ loading: true });
@@ -106,6 +107,25 @@ export default class FeedComponent extends React.Component {
         this.setState({ loading: false });
     }
 
+
+    async loadStats() {
+        let data = await API.graphql(graphqlOperation(`{
+            users_aggregate {
+              aggregate {
+                count
+              }
+            }
+            post_aggregate {
+              aggregate {
+                count
+              }
+            }
+          }
+          `));
+        console.log(data);
+        this.setState({ stats: { userCount: data.data.users_aggregate.aggregate.count, postCount: data.data.post_aggregate.aggregate.count } });
+    }
+
     render() {
         function colorize(str) {
             for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
@@ -115,17 +135,61 @@ export default class FeedComponent extends React.Component {
 
         return (
             <FlatList
+                ListHeaderComponent={
+                    root.desktopWeb &&
+                    <View pointerEvents="box-none" style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingLeft: root.sidebarPaddingLeft, marginBottom: -600, zIndex: 0 }}>
+                        <Text style={{ height: 35, fontSize: 20 }}>hi, {this.state.username}</Text>
+                        <View style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 10, minHeight: 500 }}>
+                            <Text>welcome to <Text onPress={() => { console.log("place4pals!") }} style={{ fontWeight: '600' }}>place4pals</Text>!</Text>
+                            <Text style={{ marginTop: 10 }}>i'm trying to build a minimalist social media service (think circa 2008 facebook).</Text>
+                            <Text style={{ marginTop: 10 }}>no ads, no tracking, no data collection- just a place to pal around.</Text>
+                            <Text style={{ marginTop: 10 }}>i spend my weekends and after-work hours on this project. if you like what you see and want to support p4p, you can go <Text onPress={() => { console.log('premium') }} style={{ fontWeight: '600' }}>premium</Text>, check out our <Text onPress={() => { console.log('merch') }} style={{ fontWeight: '600' }}>merch</Text>, or <Text onPress={() => { console.log('donate') }} style={{ fontWeight: '600' }}>donate here</Text>.</Text>
+                            <Text style={{ marginTop: 10, textAlign: 'right' }}>thanks,</Text>
+                            <Text style={{ marginTop: 0, textAlign: 'right' }}>heythisischris</Text>
+                            {this.state.stats &&
+                                <View>
+                                    <View>
+                                        <Text style={{ marginTop: 20, textAlign: 'left', fontSize: 20, fontWeight: '600' }}>the stats so far:</Text>
+                                        <Text style={{ marginTop: 5, textAlign: 'left' }}>• <Text style={{ fontWeight: '600' }}>{this.state.stats.userCount}</Text> pals signed up</Text>
+                                        <Text style={{ marginTop: 0, textAlign: 'left' }}>• <Text style={{ fontWeight: '600' }}>{this.state.stats.postCount}</Text> posts submitted</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                                        <TouchableOpacity>
+                                            <View style={{ borderWidth: 1, borderColor: '#000000', backgroundColor: colorize('heythisischris'), borderRadius: 10, padding: 5, height: 50, width: 50 }} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity>
+                                            <View style={{ borderWidth: 1, borderColor: '#000000', backgroundColor: colorize('pal1'), borderRadius: 10, padding: 5, height: 50, width: 50, marginLeft: -20, marginTop: 20 }} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity>
+                                            <View style={{ borderWidth: 1, borderColor: '#000000', backgroundColor: colorize('pal3'), borderRadius: 10, padding: 5, height: 50, width: 50, marginLeft: -20, marginTop: 5 }} />
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            }
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 10, marginTop: 5 }}>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text onPress={() => { console.log('about') }} style={{ fontWeight: '600', color: '#000000', fontSize: 12 }}>about</Text><Text style={{ color: '#bbbbbb', fontSize: 12 }}> - </Text>
+                                <Text onPress={() => { console.log('team') }} style={{ fontWeight: '600', color: '#000000', fontSize: 12 }}>team</Text><Text style={{ color: '#bbbbbb', fontSize: 12 }}> - </Text>
+                                <Text onPress={() => { console.log('privacy') }} style={{ fontWeight: '600', color: '#000000', fontSize: 12 }}>privacy</Text><Text style={{ color: '#bbbbbb', fontSize: 12 }}> - </Text>
+                                <Text onPress={() => { console.log('terms') }} style={{ fontWeight: '600', color: '#000000', fontSize: 12 }}>terms</Text>
+                            </View>
+                            <Text style={{ color: '#000000', fontSize: 12 }}>© {new Date().getFullYear()} place4pals</Text>
+                        </View>
+                    </View>
+                }
+                stickyHeaderIndices={root.desktopWeb ? [0] : null}
                 data={this.state.posts}
-                renderItem={({ item, index }) => (
-                    <View style={{ paddingLeft: root.paddingHorizontal, paddingRight: root.paddingHorizontal, paddingTop: root.paddingTop }}>
+                renderItem={({ item }) => (
+                    <View style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingRight: root.mainbarPaddingRight, zIndex: 1 }}>
                         <View style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, marginBottom: 15, marginTop: 35 }}>
                             <View style={{ marginTop: -35, display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
                                 <TouchableOpacity onPress={() => { this.props.navigation.navigate('viewUser', { userId: item.user.id }); }} activeOpacity={1}>
                                     <View style={{ borderWidth: 1, borderColor: '#000000', backgroundColor: colorize(item.user.username), borderRadius: 10, padding: 5, height: 50, width: 50 }} />
                                 </TouchableOpacity>
-                                <View style={{ marginTop: root.web ? -4 : 5, marginLeft: 5, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+                                <View style={{ marginTop: root.allWeb ? -4 : 5, marginLeft: 5, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
                                     <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', paddingRight: 55 }}>
-                                        <Text onPress={() => { this.props.navigation.navigate('viewPost', { postId: item.id }); }} style={{ marginBottom: 5, fontSize: 22 }}>{item.title}</Text>
+                                        <Text numberOfLines={1} onPress={() => { this.props.navigation.navigate('viewPost', { postId: item.id }); }} style={{ marginBottom: 5, fontSize: 22 }}>{item.title}</Text>
                                         {this.state.postOptions === item.id ?
                                             <View style={{ display: 'flex', flexDirection: 'row' }}>
                                                 {this.state.userId === item.user.id &&
@@ -145,7 +209,7 @@ export default class FeedComponent extends React.Component {
                                                         },
                                                         buttonIndex => {
                                                             if (this.state.userId === item.user.id) {
-                                                                if (buttonIndex === 2) {
+                                                                if (buttonIndex === 1) {
                                                                     this.deletePost(item.id)
                                                                 }
                                                             }
@@ -171,10 +235,10 @@ export default class FeedComponent extends React.Component {
                             <View style={{ padding: 10 }}>
                                 <HTML
                                     html={item.content}
-                                    imagesMaxWidth={Dimensions.get('window').width - root.paddingHorizontal * 2}
+                                    imagesMaxWidth={root.imageWidth}
                                     onLinkPress={(event, href) => { Linking.openURL(href) }}
-                                    allowedStyles={['a', 'b', 'i', 'h1', 'h2', 'h3', 'ol', 'ul', 'li', 'p', 'br', 'hr', 'img']}
-                                    tagsStyles={{ a: { fontSize: 14 }, b: { fontWeight: '600', fontSize: 14 }, i: { fontStyle: 'italic', fontSize: 14 }, h1: { fontWeight: '600', fontSize: 20 }, h2: { fontWeight: '600', fontSize: 19 }, h3: { fontWeight: '600', fontSize: 16 }, ol: { fontSize: 14 }, ul: { fontSize: 14 }, li: { fontSize: 14 }, p: { fontSize: 14 }, br: { fontSize: 14 }, hr: { fontSize: 14 }, img: { marginLeft: root.web ? 0 : -16, marginRight: root.web ? 0 : -16 } }}
+                                    allowedStyles={['a', 'b', 'i', 'h1', 'h2', 'h3', 'ol', 'ul', 'li', 'p', 'br', 'hr', 'img', 'iframe']}
+                                    tagsStyles={{ a: { fontSize: 14 }, b: { fontWeight: '600', fontSize: 14 }, i: { fontStyle: 'italic', fontSize: 14 }, h1: { fontWeight: '600', fontSize: 20 }, h2: { fontWeight: '600', fontSize: 19 }, h3: { fontWeight: '600', fontSize: 16 }, ol: { fontSize: 14 }, ul: { fontSize: 14 }, li: { fontSize: 14 }, p: { fontSize: 14 }, br: { fontSize: 14 }, hr: { fontSize: 14 }, img: { marginLeft: root.desktopWeb ? 0 : -16, marginRight: root.desktopWeb ? 0 : -16 }, iframe: { marginLeft: root.desktopWeb ? 0 : -16, marginRight: root.desktopWeb ? 0 : -16 } }}
                                 />
                             </View>
                             {item.comments.map((innerItem, innerIndex) => {

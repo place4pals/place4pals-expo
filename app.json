@@ -23,7 +23,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.place4pals",
+      "buildNumber": "06.08.20.2",
+      "usesIcloudStorage": true,
+      "icon": "./assets/images/icon-ios.png"
     },
     "description": ""
   }
