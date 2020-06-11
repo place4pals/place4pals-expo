@@ -5,9 +5,9 @@ import { Dimensions } from 'react-native';
 
 import TabBarIcon from '../components/TabBarIcon';
 import FeedNavigator from '../navigation/FeedNavigator';
+import PoolsScreen from '../screens/PoolsScreen';
 import MessagesScreen from '../screens/MessagesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import SettingsScreen from '../screens/SettingsScreen';
 
 const BottomTab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -17,9 +17,9 @@ export default function AppNavigator() {
     Dimensions.get('window').width > 800 ?
       <Stack.Navigator initialRouteName={'feed'} screenOptions={{ headerShown: false }}>
         <Stack.Screen name="feed" component={FeedNavigator} options={{ animationEnabled: false }} />
+        <Stack.Screen name="pools" component={PoolsScreen} options={{ animationEnabled: false }} />
         <Stack.Screen name="messages" component={MessagesScreen} options={{ animationEnabled: false }} />
         <Stack.Screen name="profile" component={ProfileScreen} options={{ animationEnabled: false }} />
-        <Stack.Screen name="settings" component={SettingsScreen} options={{ animationEnabled: false }} />
       </Stack.Navigator>
       :
       <BottomTab.Navigator initialRouteName={'feed'} tabBarOptions={{
@@ -32,6 +32,11 @@ export default function AppNavigator() {
           options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/feedTab.png')} />, title: 'Feed' }}
         />
         <BottomTab.Screen
+          name="pools"
+          component={PoolsScreen}
+          options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/settingsTab.png')} />, title: 'Pools' }}
+        />
+        <BottomTab.Screen
           name="messages"
           component={MessagesScreen}
           options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/messagesTab.png')} />, title: 'Messages' }}
@@ -40,11 +45,6 @@ export default function AppNavigator() {
           name="profile"
           component={ProfileScreen}
           options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/profileTab.png')} />, title: 'Profile' }}
-        />
-        <BottomTab.Screen
-          name="settings"
-          component={SettingsScreen}
-          options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/settingsTab.png')} />, title: 'Settings' }}
         />
       </BottomTab.Navigator>
   );

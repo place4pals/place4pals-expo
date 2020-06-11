@@ -26,7 +26,7 @@ export default class AddPostScreen extends React.Component {
             <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
                 <HeaderComponent navigation={this.props.navigation} screen='add post' />
                 <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', paddingTop: 0 }} keyboardDismissMode="interactive" keyboardShouldPersistTaps="always">
-                    <View style={{ width: root.allWeb ? root.width : root.windowWidth, marginLeft: root.marginLeft, marginRight: root.marginRight, display: 'flex', flexDirection: 'column', padding: 10, paddingTop: 0 }}>
+                    <View style={{ width: root.allWeb ? root.width : root.windowWidth, marginLeft: root.marginLeft, marginRight: root.marginRight, display: 'flex', flexDirection: 'column', paddingLeft: root.paddingLeft, paddingRight: root.paddingRight, paddingTop: 0 }}>
                         <Text style={{ margin: 5 }}>Title:</Text>
                         <TextInput inputAccessoryViewID='main' style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, fontSize: 20, marginBottom: 10 }} onChangeText={val => this.setState({ title: val })} />
                         <Text style={{ margin: 5 }}>Content:</Text>

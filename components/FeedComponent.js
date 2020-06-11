@@ -137,7 +137,7 @@ export default class FeedComponent extends React.Component {
             <FlatList
                 ListHeaderComponent={
                     root.desktopWeb &&
-                    <View pointerEvents="box-none" style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingLeft: root.sidebarPaddingLeft, marginBottom: -600, zIndex: 0 }}>
+                    <View pointerEvents="box-none" style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingLeft: root.sidebarPaddingLeft, paddingRight: 25, marginBottom: -600, zIndex: 0 }}>
                         <Text style={{ height: 35, fontSize: 20 }}>hi, {this.state.username}</Text>
                         <View style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 10, minHeight: 500 }}>
                             <Text>welcome to <Text onPress={() => { console.log("place4pals!") }} style={{ fontWeight: '600' }}>place4pals</Text>!</Text>
@@ -181,7 +181,7 @@ export default class FeedComponent extends React.Component {
                 stickyHeaderIndices={root.desktopWeb ? [0] : null}
                 data={this.state.posts}
                 renderItem={({ item }) => (
-                    <View style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingRight: root.mainbarPaddingRight, zIndex: 1 }}>
+                    <View style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingRight: root.mainbarPaddingRight, paddingLeft: root.desktopWeb ? 40 : 0 }}>
                         <View style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, marginBottom: 15, marginTop: 35 }}>
                             <View style={{ marginTop: -35, display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
                                 <TouchableOpacity onPress={() => { this.props.navigation.navigate('viewUser', { userId: item.user.id }); }} activeOpacity={1}>
@@ -267,6 +267,7 @@ export default class FeedComponent extends React.Component {
                         title=""
                     />}
                 onEndReached={() => { if (!this.props.viewPost && !this.props.viewUser && !this.state.endReached) { this.loadMore() } }}
+                ListEmptyComponent={<View style={root.desktopWeb && { width: '100vw', height: 'calc(100vh - 80px)', overflowY: 'scroll' }}></View>}
             />
         );
     }
