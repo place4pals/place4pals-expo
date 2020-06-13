@@ -1,13 +1,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, View } from 'react-native';
 
 import TabBarIcon from '../components/TabBarIcon';
 import FeedNavigator from '../navigation/FeedNavigator';
 import PoolsScreen from '../screens/PoolsScreen';
 import MessagesScreen from '../screens/MessagesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+//import CameraScreen from '../screens/CameraScreen';
 
 const BottomTab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -46,6 +47,11 @@ export default function AppNavigator() {
           component={ProfileScreen}
           options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/profileTab.png')} />, title: 'Profile' }}
         />
+        {/* <BottomTab.Screen
+          name="camera"
+          component={CameraScreen}
+          options={{ tabBarVisible: false, tabBarButton: props => <View /> }}
+        /> */}
       </BottomTab.Navigator>
   );
 }

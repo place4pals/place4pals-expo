@@ -9,6 +9,7 @@ import Constants from 'expo-constants';
 import AppNavigator from './navigation/AppNavigator';
 import AuthNavigator from './navigation/AuthNavigator';
 import useLinking from './navigation/useLinking';
+import CameraScreen from './screens/CameraScreen';
 
 const Stack = createStackNavigator();
 
@@ -55,7 +56,7 @@ export default function App(props) {
         setInitialNavigationState(await getInitialState());
         //in case we want to use any custom fonts...
         await Font.loadAsync({
-          'ubuntu': require('./assets/fonts/Ubuntu-Regular.ttf'),
+          'segoeui': require('./assets/fonts/segoeui.ttf'),
         });
       } catch (e) {
         console.warn(e);
@@ -72,11 +73,12 @@ export default function App(props) {
   } else {
     return (
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-        {Platform.OS === 'ios' && <View style={{ backgroundColor: '#ffffff', height: Constants.statusBarHeight }}><StatusBar barStyle="dark-content" /></View>}
+        {Platform.OS === 'ios' && <View style={{ backgroundColor: '#ffffff', height: Constants.statusBarHeight-5 }}><StatusBar barStyle="dark-content" /></View>}
         <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="auth" component={AuthNavigator} options={{ animationEnabled: false }} />
             <Stack.Screen name="app" component={AppNavigator} options={{ animationEnabled: false }} />
+            <Stack.Screen name="camera" component={CameraScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </View>

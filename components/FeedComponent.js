@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Text, View, RefreshControl, TextInput, TouchableOpacity, Keyboard, ActionSheetIOS, Platform, FlatList, Dimensions, Linking } from 'react-native';
+import { Text, View, RefreshControl, TextInput, TouchableOpacity, Keyboard, ActionSheetIOS, Platform, FlatList, Dimensions, Linking, Share } from 'react-native';
 import { API, graphqlOperation, Auth } from 'aws-amplify';
 import * as root from '../Root';
 import HTML from 'react-native-render-html';
 import InputAccessoryViewComponent from './InputAccessoryViewComponent';
+import * as WebBrowser from 'expo-web-browser';
 
 export default class FeedComponent extends React.Component {
     constructor(props) {
@@ -182,7 +183,7 @@ export default class FeedComponent extends React.Component {
                 data={this.state.posts}
                 renderItem={({ item }) => (
                     <View style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingRight: root.mainbarPaddingRight, paddingLeft: root.desktopWeb ? 40 : 0 }}>
-                        <View style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, marginBottom: 15, marginTop: 35 }}>
+                        <View style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, marginBottom: 10, marginTop: 35 }}>
                             <View style={{ marginTop: -35, display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
                                 <TouchableOpacity onPress={() => { this.props.navigation.navigate('viewUser', { userId: item.user.id }); }} activeOpacity={1}>
                                     <View style={{ borderWidth: 1, borderColor: '#000000', backgroundColor: colorize(item.user.username), borderRadius: 10, padding: 5, height: 50, width: 50 }} />
@@ -212,9 +213,21 @@ export default class FeedComponent extends React.Component {
                                                                 if (buttonIndex === 1) {
                                                                     this.deletePost(item.id)
                                                                 }
+                                                                else if (buttonIndex === 2) {
+                                                                    Share.share({
+                                                                        message: `${item.title} - ${item.content.substr(0, 50)}...`,
+                                                                        url: `https://p4p.io/app/feed/viewPost?postId=${item.id}`
+                                                                    });
+                                                                }
                                                             }
                                                             else {
                                                                 //normal non-destructive actions
+                                                                if (buttonIndex === 1) {
+                                                                    Share.share({
+                                                                        message: `${item.title} - ${item.content.substr(0, 50)}...`,
+                                                                        url: `https://p4p.io/app/feed/viewPost?postId=${item.id}`
+                                                                    });
+                                                                }
                                                             }
                                                         }
                                                     ) : this.setState({ postOptions: item.id });
@@ -236,7 +249,7 @@ export default class FeedComponent extends React.Component {
                                 <HTML
                                     html={item.content}
                                     imagesMaxWidth={root.imageWidth}
-                                    onLinkPress={(event, href) => { Linking.openURL(href) }}
+                                    onLinkPress={(event, href) => { WebBrowser.openBrowserAsync(href) }}
                                     allowedStyles={['a', 'b', 'i', 'h1', 'h2', 'h3', 'ol', 'ul', 'li', 'p', 'br', 'hr', 'img', 'iframe']}
                                     tagsStyles={{ a: { fontSize: 14 }, b: { fontWeight: '600', fontSize: 14 }, i: { fontStyle: 'italic', fontSize: 14 }, h1: { fontWeight: '600', fontSize: 20 }, h2: { fontWeight: '600', fontSize: 19 }, h3: { fontWeight: '600', fontSize: 16 }, ol: { fontSize: 14 }, ul: { fontSize: 14 }, li: { fontSize: 14 }, p: { fontSize: 14 }, br: { fontSize: 14 }, hr: { fontSize: 14 }, img: { marginLeft: root.desktopWeb ? 0 : -16, marginRight: root.desktopWeb ? 0 : -16 }, iframe: { marginLeft: root.desktopWeb ? 0 : -16, marginRight: root.desktopWeb ? 0 : -16 } }}
                                 />
