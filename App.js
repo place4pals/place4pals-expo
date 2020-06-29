@@ -5,11 +5,13 @@ import * as Font from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Constants from 'expo-constants';
+import * as root from './Root';
 
 import AppNavigator from './navigation/AppNavigator';
 import AuthNavigator from './navigation/AuthNavigator';
 import useLinking from './navigation/useLinking';
 import CameraScreen from './screens/CameraScreen';
+import MobileRedirectScreen from './screens/MobileRedirectScreen';
 
 const Stack = createStackNavigator();
 
@@ -70,10 +72,16 @@ export default function App(props) {
 
   if (!isLoadingComplete && !props.skipLoadingScreen) {
     return null;
-  } else {
+  }
+  else if (root.mobileWeb) {
+    return (
+      <MobileRedirectScreen />
+    )
+  }
+  else {
     return (
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-        {Platform.OS === 'ios' && <View style={{ backgroundColor: '#ffffff', height: Constants.statusBarHeight-5 }}><StatusBar barStyle="dark-content" /></View>}
+        {Platform.OS === 'ios' && <View style={{ backgroundColor: '#ffffff', height: Constants.statusBarHeight - 5 }}><StatusBar barStyle="dark-content" /></View>}
         <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             <Stack.Screen name="auth" component={AuthNavigator} options={{ animationEnabled: false }} />

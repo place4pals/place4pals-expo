@@ -14,16 +14,18 @@ export default class FeedScreen extends React.Component {
     commentInputs: []
   };
   async componentDidMount() {
-    this.onRefresh(false);
+    this.props.navigation.addListener('focus', this.focus);
+    this.focus();
   }
-  async onRefresh(showLoader = true) {
+  focus = async () => {
+    //console.log("FeedScreen focus");
   }
 
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
         <HeaderComponent navigation={this.props.navigation} screen='feed' />
-        <FeedComponent navigation={this.props.navigation} />
+        <FeedComponent navigation={this.props.navigation} route={this.props.route} />
         {!root.desktopWeb && <TouchableOpacity onPress={() => { this.props.navigation.navigate('addPost'); }} style={{ position: 'absolute', bottom: 10, right: 10, opacity: 0.5, height: 60, width: 60, borderRadius: 30, borderColor: '#000000', borderWidth: 1, backgroundColor: '#ffffff', display: 'flex', justifyContent: 'center' }}><Text style={{ color: '#000000', fontSize: 40, textAlign: 'center', marginTop: -2 }}>+</Text></TouchableOpacity>}
       </View >
     );

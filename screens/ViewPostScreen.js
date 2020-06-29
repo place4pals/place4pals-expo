@@ -9,7 +9,7 @@ export default class ViewPostScreen extends React.Component {
         return (
             <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
                 <HeaderComponent navigation={this.props.navigation} screen='view post' />
-                <FeedComponent navigation={this.props.navigation} viewPost={this.props.route.params.postId} />
+                <FeedComponent navigation={this.props.navigation} route={{ params: null }} viewPost={this.props.route.params.postId} />
             </View>
         );
     }

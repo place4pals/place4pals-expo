@@ -9,7 +9,7 @@ export default class ViewUserScreen extends React.Component {
         return (
             <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
                 <HeaderComponent navigation={this.props.navigation} screen='view user' />
-                <FeedComponent navigation={this.props.navigation} viewUser={this.props.route.params.userId} />
+                <FeedComponent navigation={this.props.navigation} route={{ params: null }} viewUser={this.props.route.params.userId} />
             </View>
         );
     }

@@ -19,12 +19,27 @@ export default class FeedComponent extends React.Component {
         offset: 10,
         endReached: false
     };
+
     async componentDidMount() {
+        this.props.navigation.addListener('focus', this.focus);
+        this.focus();
+
         this.onRefresh(false);
         let currentUser = (await Auth.currentSession()).idToken.payload;
         this.setState({ userId: currentUser.sub, username: currentUser['custom:username'] });
         root.desktopWeb && this.loadStats();
     }
+
+    focus = async () => {
+        if (this.props.route.params) {
+            if (this.props.route.params.reload) {
+                this.onRefresh(false);
+                this.FlatList.scrollToOffset({ animated: false, offset: 0 });
+                this.props.route.params.reload = false;
+            }
+        }
+    }
+
     async onRefresh(showLoader = true) {
         showLoader && this.setState({ loading: true });
         let modifyQuery = '';
@@ -136,6 +151,7 @@ export default class FeedComponent extends React.Component {
 
         return (
             <FlatList
+                ref={ref => this.FlatList = ref}
                 ListHeaderComponent={
                     root.desktopWeb &&
                     <View pointerEvents="box-none" style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingLeft: root.sidebarPaddingLeft, paddingRight: 25, marginBottom: -600, zIndex: 0 }}>
@@ -190,7 +206,7 @@ export default class FeedComponent extends React.Component {
                                 </TouchableOpacity>
                                 <View style={{ marginTop: root.allWeb ? -4 : 5, marginLeft: 5, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
                                     <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', paddingRight: 55 }}>
-                                        <Text numberOfLines={1} onPress={() => { this.props.navigation.navigate('viewPost', { postId: item.id }); }} style={{ marginBottom: 5, fontSize: 22 }}>{item.title}</Text>
+                                        <Text numberOfLines={1} onPress={() => { this.props.navigation.navigate('viewPost', { postId: item.id }); }} style={{ marginBottom: 5, fontSize: 22, maxWidth: '90%' }}>{item.title}</Text>
                                         {this.state.postOptions === item.id ?
                                             <View style={{ display: 'flex', flexDirection: 'row' }}>
                                                 {this.state.userId === item.user.id &&
@@ -200,7 +216,7 @@ export default class FeedComponent extends React.Component {
                                                 <Text style={{ marginLeft: 10, color: '#000000' }} onPress={() => { console.log("save post!") }}>Save</Text>
                                                 <Text style={{ marginLeft: 15, marginRight: 5, color: '#000000' }} onPress={() => { this.setState({ postOptions: null }); }}>🗙</Text>
                                             </View> :
-                                            <TouchableOpacity style={{ paddingLeft: 30, height: 30 }} onPress={() => {
+                                            <TouchableOpacity style={{ height: 30 }} onPress={() => {
                                                 Platform.OS === 'ios' ?
                                                     ActionSheetIOS.showActionSheetWithOptions(
                                                         {
@@ -246,13 +262,13 @@ export default class FeedComponent extends React.Component {
                                 </View>
                             </View>
                             <View style={{ padding: 10 }}>
-                                <HTML
+                                {item.content ? <HTML
                                     html={item.content}
                                     imagesMaxWidth={root.imageWidth}
                                     onLinkPress={(event, href) => { WebBrowser.openBrowserAsync(href) }}
                                     allowedStyles={['a', 'b', 'i', 'h1', 'h2', 'h3', 'ol', 'ul', 'li', 'p', 'br', 'hr', 'img', 'iframe']}
                                     tagsStyles={{ a: { fontSize: 14 }, b: { fontWeight: '600', fontSize: 14 }, i: { fontStyle: 'italic', fontSize: 14 }, h1: { fontWeight: '600', fontSize: 20 }, h2: { fontWeight: '600', fontSize: 19 }, h3: { fontWeight: '600', fontSize: 16 }, ol: { fontSize: 14 }, ul: { fontSize: 14 }, li: { fontSize: 14 }, p: { fontSize: 14 }, br: { fontSize: 14 }, hr: { fontSize: 14 }, img: { marginLeft: root.desktopWeb ? 0 : -16, marginRight: root.desktopWeb ? 0 : -16 }, iframe: { marginLeft: root.desktopWeb ? 0 : -16, marginRight: root.desktopWeb ? 0 : -16 } }}
-                                />
+                                /> : <View />}
                             </View>
                             {item.comments.map((innerItem, innerIndex) => {
                                 return (
