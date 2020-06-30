@@ -6,7 +6,7 @@ import { Dimensions, View } from 'react-native';
 import TabBarIcon from '../components/TabBarIcon';
 import FeedNavigator from '../navigation/FeedNavigator';
 import PoolsScreen from '../screens/PoolsScreen';
-import MessagesScreen from '../screens/MessagesScreen';
+import InboxScreen from '../screens/InboxScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 //import CameraScreen from '../screens/CameraScreen';
 
@@ -19,7 +19,7 @@ export default function AppNavigator() {
       <Stack.Navigator initialRouteName={'feed'} screenOptions={{ headerShown: false }}>
         <Stack.Screen name="feed" component={FeedNavigator} options={{ animationEnabled: false }} />
         <Stack.Screen name="pools" component={PoolsScreen} options={{ animationEnabled: false }} />
-        <Stack.Screen name="messages" component={MessagesScreen} options={{ animationEnabled: false }} />
+        <Stack.Screen name="inbox" component={InboxScreen} options={{ animationEnabled: false }} />
         <Stack.Screen name="profile" component={ProfileScreen} options={{ animationEnabled: false }} />
       </Stack.Navigator>
       :
@@ -35,12 +35,12 @@ export default function AppNavigator() {
         <BottomTab.Screen
           name="pools"
           component={PoolsScreen}
-          options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/settingsTab.png')} />, title: 'Pools' }}
+          options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/poolsTab.png')} />, title: 'Pools' }}
         />
         <BottomTab.Screen
-          name="messages"
-          component={MessagesScreen}
-          options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/messagesTab.png')} />, title: 'Messages' }}
+          name="inbox"
+          component={InboxScreen}
+          options={{ tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} image={require('../assets/images/inboxTab.png')} />, title: 'Inbox' }}
         />
         <BottomTab.Screen
           name="profile"

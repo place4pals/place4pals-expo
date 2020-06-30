@@ -197,8 +197,10 @@ export default class FeedComponent extends React.Component {
                 }
                 stickyHeaderIndices={root.desktopWeb ? [0] : null}
                 data={this.state.posts}
-                renderItem={({ item }) => (
-                    <View style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingRight: root.mainbarPaddingRight, paddingLeft: root.desktopWeb ? 40 : 0 }}>
+                renderItem={({ item, index }) => (
+                    <View style={{ width: root.width, marginLeft: root.marginLeft, marginRight: root.marginRight, paddingRight: root.mainbarPaddingRight, paddingLeft: root.desktopWeb ? 40 : 0 }} onLayout={event => {
+                        item.layout = event.nativeEvent.layout;
+                    }}>
                         <View style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, minHeight: 50, marginBottom: 10, marginTop: 35 }}>
                             <View style={{ marginTop: -35, display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
                                 <TouchableOpacity onPress={() => { this.props.navigation.navigate('viewUser', { userId: item.user.id }); }} activeOpacity={1}>
@@ -281,7 +283,8 @@ export default class FeedComponent extends React.Component {
                                 onSubmitEditing={(event) => { this.addComment(event.nativeEvent.text, item.id); this.setState({ commentInputs: { ...this.state.commentInputs, [item.id]: '' } }); }}
                                 onChangeText={comment => { this.setState({ commentInputs: { ...this.state.commentInputs, [item.id]: comment } }); }}
                                 //multiline={true}
-                                value={this.state.commentInputs[item.id] || ''} />
+                                value={this.state.commentInputs[item.id] || ''}
+                                onFocus={!root.desktopWeb && (() => { this.FlatList.scrollToIndex({ animated: true, index: index, viewOffset: -item.layout.height + 400 }) })} />
                         </View>
                     </View>
                 )}

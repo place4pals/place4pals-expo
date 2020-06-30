@@ -23,7 +23,7 @@ export default class HeaderComponent extends React.Component {
             else if (['pools'].includes(this.props.screen)) {
                 backgroundColor = '#808080';
             }
-            else if (['messages'].includes(this.props.screen)) {
+            else if (['inbox'].includes(this.props.screen)) {
                 backgroundColor = '#898542';
             }
             else if (['profile'].includes(this.props.screen)) {
@@ -72,37 +72,64 @@ export default class HeaderComponent extends React.Component {
                                 <TouchableOpacity onPress={() => { this.props.navigation.navigate('feed'); }} >
                                     <Image source={['view post', 'view user', 'add post'].includes(this.props.screen) ? require('../assets/images/backButton.png') : require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { this.props.navigation.navigate('feed'); }} >
-                                    <Text style={{ color: '#000000', marginLeft: 10, fontSize: 30, fontWeight: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? '600' : '400', color: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? '#000000' : '#aaaaaa' }}>Feed</Text>
+                                <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 14, marginRight: 10 }} onPress={() => { this.props.navigation.navigate('feed'); }} >
+                                    <Image style={{ height: 40, width: 40, tintColor: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? '#000000' : '#aaaaaa' }} source={require('../assets/images/feedTab.png')} />
+                                    <Text style={{ color: '#000000', fontSize: 26, fontWeight: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? '600' : '400', color: ['feed', 'view post', 'view user', 'add post'].includes(this.props.screen) ? '#000000' : '#aaaaaa' }}>Feed</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { this.props.navigation.navigate('pools'); }} >
-                                    <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'pools' ? '600' : '400', color: this.props.screen === 'pools' ? '#000000' : '#aaaaaa' }}>Pools</Text>
+                                <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10, marginRight: 10 }} onPress={() => { this.props.navigation.navigate('pools'); }} >
+                                    <Image style={{ height: 40, width: 40, tintColor: ['pools'].includes(this.props.screen) ? '#000000' : '#aaaaaa' }} source={require('../assets/images/poolsTab.png')} />
+                                    <Text style={{ color: '#000000', fontSize: 26, fontWeight: this.props.screen === 'pools' ? '600' : '400', color: this.props.screen === 'pools' ? '#000000' : '#aaaaaa' }}>Pools</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { this.props.navigation.navigate('messages'); }} >
-                                    <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'messages' ? '600' : '400', color: this.props.screen === 'messages' ? '#000000' : '#aaaaaa' }}>Messages</Text>
+                                <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10, marginRight: 10 }} onPress={() => { this.props.navigation.navigate('inbox'); }} >
+                                    <Image style={{ height: 40, width: 40, tintColor: ['inbox'].includes(this.props.screen) ? '#000000' : '#aaaaaa' }} source={require('../assets/images/inboxTab.png')} />
+                                    <Text style={{ color: '#000000', fontSize: 26, fontWeight: this.props.screen === 'inbox' ? '600' : '400', color: this.props.screen === 'inbox' ? '#000000' : '#aaaaaa' }}>Inbox</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { this.props.navigation.navigate('profile'); }} >
-                                    <Text style={{ color: '#000000', marginLeft: 15, fontSize: 30, fontWeight: this.props.screen === 'profile' ? '600' : '400', color: this.props.screen === 'profile' ? '#000000' : '#aaaaaa' }}>Profile</Text>
+                                <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 10, marginRight: 10 }} onPress={() => { this.props.navigation.navigate('profile'); }} >
+                                    <Image style={{ height: 40, width: 40, tintColor: ['profile'].includes(this.props.screen) ? '#000000' : '#aaaaaa' }} source={require('../assets/images/profileTab.png')} />
+                                    <Text style={{ color: '#000000', fontSize: 26, fontWeight: this.props.screen === 'profile' ? '600' : '400', color: this.props.screen === 'profile' ? '#000000' : '#aaaaaa' }}>Profile</Text>
                                 </TouchableOpacity>
                             </View>
                             {this.props.screen === 'feed' &&
-                                <TouchableOpacity onPress={() => { this.props.navigation.navigate('addPost'); }} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5 }}>
-                                    <Text style={{ fontSize: 20, }}>+ Add Post </Text>
-                                </TouchableOpacity>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <TouchableOpacity onPress={() => { console.log("refresh") }} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, marginRight: 10, width: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Image style={{ height: 18, width: 18 }} source={require('../assets/images/rotateIcon.png')} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { this.props.navigation.navigate('addPost'); }} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5 }}>
+                                        <Text style={{ fontSize: 20, }}>+ Add Post </Text>
+                                    </TouchableOpacity>
+                                </View>
                             }
                         </View>
-                        <TextInput inputAccessoryViewID='main' style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, fontSize: 14, paddingLeft: 10, paddingRight: 10, marginTop: 11, height: 39, width: '100%', marginLeft: 20, marginRight: -10 }} placeholder='Search' returnKeyType='send' type='text'
-                            onSubmitEditing={(event) => { }}
-                            onChangeText={value => { this.setState({ search: value }); }}
-                            value={this.state.search} />
+                        <View style={{ marginTop: 11, height: 39, width: '100%', marginLeft: 20, flexDirection: 'row' }}>
+                            <TextInput inputAccessoryViewID='main' style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, fontSize: 14, paddingLeft: 10, paddingRight: 10, width: 260 }} placeholder='Search' returnKeyType='send' type='text'
+                                onSubmitEditing={(event) => { }}
+                                onChangeText={value => { this.setState({ search: value }); }}
+                                value={this.state.search} />
+                            <TouchableOpacity onPress={() => { }} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, marginLeft: 10, width: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                <Image style={{ height: 30, width: 30 }} source={require('../assets/images/notificationsIcon.png')} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                     :
-                    <View style={{ width: root.width, display: 'flex', flexDirection: 'row', alignItems: 'flex-end', marginBottom: 10, justifyContent: 'space-between', marginLeft: root.marginLeft, marginRight: root.marginRight, paddingTop: root.paddingTop }}>
-                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
-                            <TouchableOpacity onPress={() => { this.props.navigation.navigate('feed'); }} >
-                                <Image source={['view post', 'view user', 'add post'].includes(this.props.screen) ? require('../assets/images/backButton.png') : require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />
-                            </TouchableOpacity>
-                            <Text style={{ color: '#000000', marginLeft: 10, fontSize: 40 }}>{this.props.screen[0].toUpperCase() + this.props.screen.slice(1)}</Text>
+                    <View style={{ width: root.width, flexDirection: 'row', alignItems: 'flex-end', marginBottom: 10, justifyContent: 'space-between', marginLeft: root.marginLeft, marginRight: root.marginRight, paddingTop: root.paddingTop }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                <TouchableOpacity onPress={() => { this.props.navigation.navigate('feed'); }} >
+                                    <Image source={['view post', 'view user', 'add post'].includes(this.props.screen) ? require('../assets/images/backButton.png') : require('../assets/images/logo.png')} style={{ width: 50, height: 50 }} />
+                                </TouchableOpacity>
+                                <Text style={{ color: '#000000', marginLeft: 10, fontSize: 40 }}>{this.props.screen[0].toUpperCase() + this.props.screen.slice(1)}</Text>
+                            </View>
+
+                            {this.props.screen === 'feed' &&
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <TouchableOpacity onPress={() => { }} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, marginRight: 10, width: 40, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Image style={{ height: 30, width: 30 }} source={require('../assets/images/searchIcon.png')} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { }} style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5 }}>
+                                        <Image style={{ height: 30, width: 30 }} source={require('../assets/images/notificationsIcon.png')} />
+                                    </TouchableOpacity>
+                                </View>
+                            }
                         </View>
                         <InputAccessoryViewComponent />
                     </View>
