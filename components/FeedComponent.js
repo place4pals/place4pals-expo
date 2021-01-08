@@ -56,6 +56,7 @@ export default class FeedComponent extends React.Component {
                 username
                 }
                 comments(order_by: {date_created: asc}) {
+                id
                 content
                 date_created
                 user {
@@ -103,6 +104,18 @@ export default class FeedComponent extends React.Component {
         this.onRefresh(false);
     }
 
+    async deleteComment(id) {
+        await API.graphql(graphqlOperation(`
+            mutation {
+                delete_comment(where: {id: {_eq: "${id}"}}) {
+                  affected_rows
+                }
+              }
+        `));
+        //this.setState({ posts: this.state.posts.splice(givenIndex - 1, 1) });
+        this.onRefresh(false);
+    }
+
     async addComment(content, id) {
         Keyboard.dismiss();
         this.setState({ loading: true });
@@ -111,9 +124,11 @@ export default class FeedComponent extends React.Component {
         data = await API.graphql(graphqlOperation(`{
             post(order_by: {date_created: desc}, where: {id: {_eq: "${id}"}}) {
                 comments(order_by: {date_created: asc}) {
+                id
                 content
                 date_created
                 user {
+                    id
                     username
                 }
                 }
@@ -274,8 +289,34 @@ export default class FeedComponent extends React.Component {
                             </View>
                             {item.comments.map((innerItem, innerIndex) => {
                                 return (
-                                    <View key={innerIndex} style={{ marginLeft: 10, marginRight: 10, marginBottom: 5 }}>
-                                        <Text><Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: innerItem.user.id }); }} style={{ fontWeight: '600' }}>{innerItem.user.username}</Text>: {innerItem.content}</Text>
+                                    <View key={innerIndex} style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', alignSelf: 'stretch', marginLeft: 10, marginRight: 10, marginBottom: 5 }}>
+                                        <Text style={{maxWidth: '90%'}}><Text onPress={() => { this.props.navigation.navigate('viewUser', { userId: innerItem.user.id }); }} style={{ fontWeight: '600' }}>{innerItem.user.username}</Text>: {innerItem.content}</Text>
+                                        {this.state.commentOptions === innerItem.id ?
+                                            <View style={{ display: 'flex', flexDirection: 'row' }}>
+                                                {this.state.userId === innerItem.user.id &&
+                                                    <Text style={{ marginLeft: 10, color: '#ff0000' }} onPress={() => { this.deleteComment(innerItem.id) }}>Delete</Text>
+                                                }
+                                                <Text style={{ marginLeft: 15, marginRight: 5, color: '#000000' }} onPress={() => { this.setState({ commentOptions: null }); }}>🗙</Text>
+                                            </View> :
+                                            <TouchableOpacity onPress={() => {
+                                                Platform.OS === 'ios' ?
+                                                    ActionSheetIOS.showActionSheetWithOptions(
+                                                        {
+                                                            options: this.state.userId === item.user.id ? ['Cancel', 'Delete'] : ['Cancel'],
+                                                            destructiveButtonIndex: this.state.userId === item.user.id ? 1 : null,
+                                                            cancelButtonIndex: 0,
+                                                        },
+                                                        buttonIndex => {
+                                                            if (this.state.userId === item.user.id) {
+                                                                if (buttonIndex === 1) {
+                                                                    this.deleteComment(innerItem.id)
+                                                                }
+                                                            }
+                                                        }
+                                                    ) : this.setState({ commentOptions: innerItem.id });
+                                            }}>
+                                                <Text>. . . </Text>
+                                            </TouchableOpacity>}
                                     </View>
                                 )
                             })}
