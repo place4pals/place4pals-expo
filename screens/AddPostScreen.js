@@ -34,6 +34,12 @@ export default class AddPostScreen extends React.Component {
 
     createPost = async () => {
         Keyboard.dismiss();
+
+        if (!this.state.title) { 
+            this.setState({ missingTitle: true })
+            return 
+        }
+
         this.setState({ loading: true });
 
         if (this.state.photo) {
@@ -55,7 +61,7 @@ export default class AddPostScreen extends React.Component {
                 <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', paddingTop: 0 }} keyboardDismissMode="interactive" keyboardShouldPersistTaps="always">
                     <View style={{ width: root.allWeb ? root.width : root.windowWidth - 20, marginLeft: root.marginLeft, marginRight: root.marginRight, display: 'flex', flexDirection: 'column', paddingLeft: root.paddingLeft, paddingRight: root.paddingRight, paddingTop: 0 }}>
                         <Text style={{ margin: 5 }}>Title:</Text>
-                        <TextInput inputAccessoryViewID='main' style={{ borderWidth: 1, borderColor: '#000000', borderRadius: 10, padding: 5, fontSize: 20, marginBottom: 10 }} onChangeText={val => this.setState({ title: val })} />
+                        <TextInput inputAccessoryViewID='main' style={{ borderWidth: 1, borderColor: this.state.missingTitle ? 'red' : '#000000', borderRadius: 10, padding: 5, fontSize: 20, marginBottom: 10 }} onChangeText={val => this.setState({ title: val })} />
                         <Text style={{ margin: 5 }}>Content:</Text>
                         <TextInput
                             inputAccessoryViewID='main'
