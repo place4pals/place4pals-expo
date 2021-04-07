@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, ScrollView, Text, View } from 'react-native';
+import { TouchableOpacity, ScrollView, Text, View, Platform } from 'react-native';
 import { LoadingComponent } from '../components/LoadingComponent';
 import { GiftedChat } from 'react-native-gifted-chat';
 import { API, graphqlOperation, Auth } from 'aws-amplify';
@@ -20,7 +20,7 @@ export default function ChatScreen({ route, navigation }: any) {
 
   const { loading, error, data } = useSubscription(
     gql`subscription {
-      chat(order_by: {date: desc}) {
+      chat(order_by: {date: ${Platform.OS !== 'web' ? 'desc' : 'asc'}}, limit: 100) {
         _id: id
         createdAt: date
         user_id
@@ -35,10 +35,16 @@ export default function ChatScreen({ route, navigation }: any) {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff' }}>
-      <View style={{ width: root.width, height: '100%' }}>
+      <View style={{ width: root.desktopWeb ? root.width - 80 : '100%', height: '85%', borderColor: '#aaaaaa', borderWidth: 1 }}>
         {data &&
           <GiftedChat
             messagesContainerStyle={{ width: '100%' }}
+            renderFooter={() => <View style={{ height: 10 }} />}
+            multiline={false}
+            inverted={Platform.OS !== 'web'}
+            alwaysShowSend={true}
+            showUserAvatar={true}
+            renderUsernameOnMessage={true}
             messages={data.chat}
             onSend={async (messages) => {
               await API.graphql(graphqlOperation(`mutation($content: String) {
@@ -50,6 +56,7 @@ export default function ChatScreen({ route, navigation }: any) {
             user={{
               _id: userId,
             }}
+            infiniteScroll
           />
         }
       </View>

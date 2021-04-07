@@ -1,7 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
-import { Dimensions, Platform, View, Text, TouchableOpacity } from 'react-native';
+import { Dimensions, Platform, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import FeedScreen from '../screens/FeedScreen';
@@ -45,26 +45,26 @@ function RootNavigator() {
                 options={{
                   tabBarButton: props =>
                     <TouchableOpacity onPress={() => { }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                      <LogoSvg width={50} height={50} style={{ marginRight: 5 }} />
+                      <LogoSvg width={25} height={25} style={{ marginRight: 5 }} />
                     </TouchableOpacity>
                 }}
               />}
-            <AppStack.Screen name="feed">
+            <AppStack.Screen name="feed" options={{title:'= feed'}}>
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
                 <TabStack.Screen name="feed" component={FeedScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
-            <AppStack.Screen name="pools">
+            <AppStack.Screen name="pools" options={{title:'≈ pools'}}>
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
                 <TabStack.Screen name="pools" component={BlankScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
-            <AppStack.Screen name="chat">
+            <AppStack.Screen name="chat" options={{title:'⇆ chat'}}>
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
                 <TabStack.Screen name="chat" component={ChatScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
-            <AppStack.Screen name="profile">
+            <AppStack.Screen name="profile" options={{title:'▢ profile'}}>
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
                 <TabStack.Screen name="profile" component={BlankScreen} />
               </TabStack.Navigator>}
@@ -74,7 +74,17 @@ function RootNavigator() {
                 component={BlankScreen}
                 options={{
                   tabBarButton: props =>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: 600 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', width: 600 }}>
+                      <TouchableOpacity style={{ borderColor: '#000000', borderRadius: 5, borderWidth: 1, borderStyle: 'solid', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 25, width: 25, marginRight: 10 }} onPress={() => { }} >
+                        <Text style={{ color: '#000000', fontSize: 14 }}>↻</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={{ borderColor: '#000000', borderRadius: 5, borderWidth: 1, borderStyle: 'solid', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 25, width: 80, marginRight: 20 }} onPress={() => { }} >
+                        <Text style={{ color: '#000000', fontSize: 14 }}>+ add post</Text>
+                      </TouchableOpacity>
+                      <TextInput placeholder="search" style={{ borderColor: '#000000', borderRadius: 5, borderWidth: 1, borderStyle: 'solid', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 25, width: 272, marginRight: 10, padding: 5 }} />
+                      <TouchableOpacity style={{ borderColor: '#000000', borderRadius: 5, borderWidth: 1, borderStyle: 'solid', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 25, width: 25, marginRight: -5 }} onPress={() => { }} >
+                        <Text style={{ color: '#000000', fontSize: 14, fontWeight: 'bold' }}>!</Text>
+                      </TouchableOpacity>
                     </View>
                 }}
               />}

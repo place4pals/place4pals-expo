@@ -7,8 +7,8 @@ export function LoadingComponent() {
     const spin = spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
     return (
         <View style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <View style={{ width: 100, height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25 }}>
-                <Animated.View style={{ height: 50, width: 50, backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 25, borderTopWidth: 25, transform: [{ rotate: spin }] }} />
+            <View style={{ width: 60, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 10, marginBottom: 125 }}>
+                <Animated.View style={{ height: 30, width: 30, backgroundColor: '#ffffff', borderColor: '#000000', borderWidth: 1, borderRadius: 15, borderTopWidth: 15, transform: [{ rotate: spin }] }} />
             </View>
         </View>
     );

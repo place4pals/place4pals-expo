@@ -274,7 +274,7 @@ export default function FeedScreen({ route, navigation }: any) {
                         </View>
                         <View style={{ padding: 10 }}>
                             {item.content ? <HTML
-                                html={item.content}
+                                source={{ html: item.content }}
                                 imagesMaxWidth={root.imageWidth}
                                 onLinkPress={(event, href) => { WebBrowser.openBrowserAsync(href) }}
                                 allowedStyles={['a', 'b', 'i', 'h1', 'h2', 'h3', 'ol', 'ul', 'li', 'p', 'br', 'hr', 'img', 'iframe']}
