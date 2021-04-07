@@ -9,6 +9,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import LinkingConfiguration from './LinkingConfiguration';
 import BlankScreen from '../screens/BlankScreen';
 import ResetScreen from '../screens/ResetScreen';
+import ChatScreen from '../screens/ChatScreen';
 import LogoSvg from "../svgs/logo"
 
 export default function Navigation({ navigation }: any) {
@@ -58,9 +59,9 @@ function RootNavigator() {
                 <TabStack.Screen name="pools" component={BlankScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
-            <AppStack.Screen name="inbox">
+            <AppStack.Screen name="chat">
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
-                <TabStack.Screen name="inbox" component={BlankScreen} />
+                <TabStack.Screen name="chat" component={ChatScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
             <AppStack.Screen name="profile">

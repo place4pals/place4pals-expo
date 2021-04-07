@@ -34,16 +34,21 @@ Amplify.configure({
   }
 });
 
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
+const client = new ApolloClient({ cache: new InMemoryCache() });
+
 export default function App() {
   const isLoadingComplete = useCachedResources();
   if (!isLoadingComplete) {
     return null;
   } else {
     return (
-      <SafeAreaProvider>
-        <Navigation />
-        <StatusBar />
-      </SafeAreaProvider>
+      <ApolloProvider client={client}>
+        <SafeAreaProvider style={{ backgroundColor: '#ffffff' }}>
+          <Navigation />
+          <StatusBar />
+        </SafeAreaProvider>
+      </ApolloProvider>
     );
   }
 }

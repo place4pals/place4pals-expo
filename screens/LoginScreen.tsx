@@ -3,10 +3,45 @@ import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform, Keyboard
 import { Auth } from "aws-amplify";
 import LogoSvg from "../svgs/logo"
 import { LoadingComponent } from '../components/LoadingComponent';
+import { useApolloClient } from "@apollo/client";
+import { WebSocketLink } from "@apollo/client/link/ws";
 Platform.OS !== 'web' && LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 
 export default function LoginScreen({ route, navigation }: any) {
+    const client = useApolloClient();
+
     const [state, setState] = useState({ email: 'chris@heythisischris.com', password: 'place4pals', errorMessage: '', successMessage: '', loading: false });
+
+    React.useEffect(() => {
+        if (!route.params) { route.params = {}; }
+        if (route.params.success) { setState({ ...state, success: true, successMessage: 'Success! Confirm your email before logging in' }); }
+        if (route.params.reset) { setState({ ...state, success: true, successMessage: 'We sent you a link to reset your password' }); }
+        if (route.params.username && route.params.code) {
+            Auth.confirmSignUp(route.params.username, route.params.code).then((response) => {
+                setState({ ...state, success: true, successMessage: 'Email successfully confirmed! You may log in' });
+            });
+        }
+        if (route.params.demo) {
+            setState({ ...state, loading: true });
+            Auth.signIn({
+                username: 'demo@place4pals.com',
+                password: 'password'
+            }).then(() => {
+                connectWebsocket();
+                setState({ ...state, loading: false, errorMessage: '', success: false, email: '', password: '' });
+                navigation.navigate('app');
+            });
+        }
+
+        Auth.currentSession().then((response) => {
+            connectWebsocket();
+            setState({ ...state, loading: false, errorMessage: '', success: false, email: '', password: '' });
+            navigation.navigate('app');
+        }).catch((error) => {
+            setState({ ...state, loading: false });
+        });
+    }, [route.params]);
+
     const login = async () => {
         Keyboard.dismiss();
         setState({ ...state, loading: true })
@@ -15,6 +50,7 @@ export default function LoginScreen({ route, navigation }: any) {
                 username: state.email,
                 password: state.password
             });
+            connectWebsocket();
             setState({ ...state, loading: false, errorMessage: '' });
             navigation.navigate('app');
         }
@@ -23,6 +59,21 @@ export default function LoginScreen({ route, navigation }: any) {
             setState({ ...state, loading: false, errorMessage: err.code === 'UserNotConfirmedException' ? 'Confirm your email address before logging in' : 'Your username or password is incorrect' });
         }
     }
+
+    const connectWebsocket = () => {
+        client.setLink(new WebSocketLink({
+            uri: "wss://api.p4p.io/v1/graphql",
+            options: {
+                reconnect: true,
+                connectionParams: async () => ({
+                    headers: {
+                        Authorization: "Bearer " + (await Auth.currentSession()).idToken.jwtToken
+                    }
+                })
+            }
+        }));
+    }
+
     return (
         <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
             <ScrollView style={{ flex: 1, width: '100%' }} contentContainerStyle={{ flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' }}

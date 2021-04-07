@@ -27,7 +27,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.place4pals",
-      "buildNumber": "06.08.20.2",
+      "buildNumber": "2021.03.14",
       "usesIcloudStorage": true,
       "icon": "./assets/images/icon-ios.png"
     },
