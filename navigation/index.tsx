@@ -10,6 +10,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 import BlankScreen from '../screens/BlankScreen';
 import ResetScreen from '../screens/ResetScreen';
 import ChatScreen from '../screens/ChatScreen';
+import PokerScreen from '../screens/PokerScreen';
 import LogoSvg from "../svgs/logo"
 
 export default function Navigation({ navigation }: any) {
@@ -49,26 +50,33 @@ function RootNavigator() {
                     </TouchableOpacity>
                 }}
               />}
-            <AppStack.Screen name="feed" options={{title:'= feed'}}>
+            <AppStack.Screen name="feed" options={{ title: '= feed' }}>
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
                 <TabStack.Screen name="feed" component={FeedScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
-            <AppStack.Screen name="pools" options={{title:'≈ pools'}}>
+            <AppStack.Screen name="pools" options={{ title: '≈ pools' }}>
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
                 <TabStack.Screen name="pools" component={BlankScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
-            <AppStack.Screen name="chat" options={{title:'⇆ chat'}}>
+            <AppStack.Screen name="chat" options={{ title: '⇆ chat' }}>
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
                 <TabStack.Screen name="chat" component={ChatScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
-            <AppStack.Screen name="profile" options={{title:'▢ profile'}}>
+            <AppStack.Screen name="profile" options={{ title: '▢ profile' }}>
               {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
                 <TabStack.Screen name="profile" component={BlankScreen} />
               </TabStack.Navigator>}
             </AppStack.Screen>
+            {Platform.OS === 'web' &&
+              <AppStack.Screen name="poker" options={{ title: '🂠 poker' }}>
+                {props => <TabStack.Navigator {...props} screenOptions={{ headerShown: false }}>
+                  <TabStack.Screen name="poker" component={PokerScreen} />
+                </TabStack.Navigator>}
+              </AppStack.Screen>
+            }
             {Platform.OS === 'web' &&
               <AppStack.Screen name="webcontrols"
                 component={BlankScreen}
