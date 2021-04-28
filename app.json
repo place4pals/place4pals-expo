@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "place4pals",
-    "slug": "place4pals-expo",
+    "slug": "place4pals",
+    "description": "minimalist and non-profit social media service",
     "platforms": [
       "ios",
       "android",
@@ -11,6 +12,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "p4p",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -25,10 +27,18 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.place4pals",
-      "buildNumber": "06.08.20.2",
+      "buildNumber": "2021.03.14",
       "usesIcloudStorage": true,
       "icon": "./assets/images/icon-ios.png"
     },
-    "description": ""
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    }
   }
 }

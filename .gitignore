@@ -109,3 +109,5 @@ web-build/
 # Expo
 .expo/
 .expo-shared/
+
+Environment.tsx
